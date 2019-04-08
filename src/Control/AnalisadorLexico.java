@@ -74,9 +74,9 @@ public class AnalisadorLexico {
                         }
                     }
                     if (this.reservadas.contains(s.toLowerCase())) {
-                        tokens.add(new Token("Palavra Reservada", "cID", s, linha, coluna));
+                        tokens.add(new Token("Palavra Reservada", "cId", s, linha, coluna));
                     } else {
-                        tokens.add(new Token("Identificador", "cID", s, linha, coluna));
+                        tokens.add(new Token("Identificador", "cId", s, linha, coluna));
                         if (!this.simbolos.contains(new Simbolo(s, "Variável"))) {
                             this.simbolos.add(new Simbolo(s, "Variável"));
                         }
@@ -369,5 +369,7 @@ public class AnalisadorLexico {
         this.reservadas.add("var");
         this.reservadas.add("while");
         this.reservadas.add("with");
+        this.reservadas.add("read");
+        this.reservadas.add("write");
     }
 }

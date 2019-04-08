@@ -61,7 +61,7 @@ public class Token {
 
     @Override
     public String toString() {
-        return String.format("(%03d:%03d) - %s: %s", linha, coluna, classe, lexema);
+        return String.format("(%03d:%03d) - %s: %s", linha, coluna, tipo, lexema);
     }
     
 }
