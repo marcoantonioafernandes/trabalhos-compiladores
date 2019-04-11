@@ -16,14 +16,17 @@ public class AnalisadorSintatico {
 
     private List<Token> tokens;
     private int id;
+    private boolean erro;
 
     public AnalisadorSintatico(List<Token> tokens) {
         this.tokens = tokens;
     }
 
     public void analisar() {
+        this.erro = false;
         System.out.println(tokens);
         this.programa();
+        this.id++;
         Token token = getProximoToken();
         if (!token.getLexema().equals("EOF")) {
             System.out.println("Erro na analise sintática");
@@ -46,7 +49,16 @@ public class AnalisadorSintatico {
             token = this.getProximoToken();
             if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
                 this.corpo();
+                this.id++;
+                token = this.getProximoToken();
+                if (!token.getLexema().equals(".")) {
+                    this.id--;
+                }
+            } else {
+                this.id--;
             }
+        } else {
+            this.id--;
         }
     }
 
@@ -136,9 +148,7 @@ public class AnalisadorSintatico {
             this.sentencas();
             this.id++;
             token = this.getProximoToken();
-            if (token.getLexema().equals("end")) {
-                this.id++;
-            } else {
+            if (!token.getLexema().equals("end")) {
                 this.id--;
             }
         } else {
@@ -148,7 +158,6 @@ public class AnalisadorSintatico {
 
     private void sentencas() {
         this.comando();
-        this.variaveis();
         this.id++;
         Token token = getProximoToken();
         if (token.getLexema().equals(";")) {
@@ -356,63 +365,26 @@ public class AnalisadorSintatico {
             this.id++;
             token = this.getProximoToken();
             if (token.getLexema().equals("until")) {
-                this.id++;
-                token = this.getProximoToken();
-                if (token.getLexema().equals("(")) {
-                    this.expressaoLogica();
-                    this.id++;
-                    token = this.getProximoToken();
-                    if (!token.getLexema().equals(")")) {
-                        this.id--;
-                    }
-                } else {
-                    this.id--;
-                }
+                this.expressaoLogica();
             } else {
                 this.id--;
             }
         } else if (token.getLexema().equals("while")) {
+            this.expressaoLogica();
             this.id++;
             token = this.getProximoToken();
-            if (token.getLexema().equals("(")) {
-                this.expressaoLogica();
-                this.id++;
-                token = this.getProximoToken();
-                if (token.getLexema().equals(")")) {
-                    this.id++;
-                    token = this.getProximoToken();
-                    if (token.getLexema().equals("do")) {
-                        this.bloco();
-                    } else {
-                        this.id--;
-                    }
-
-                } else {
-                    this.id--;
-                }
+            if (token.getLexema().equals("do")) {
+                this.bloco();
             } else {
                 this.id--;
             }
         } else if (token.getLexema().equals("if")) {
+            this.expressaoLogica();
             this.id++;
             token = this.getProximoToken();
-            if (token.getLexema().equals("(")) {
-                this.expressaoLogica();
-                this.id++;
-                token = this.getProximoToken();
-                if (token.getLexema().equals(")")) {
-                    this.id++;
-                    token = this.getProximoToken();
-                    if (token.getLexema().equals("then")) {
-                        this.bloco();
-                        this.pfalsa();
-                    } else {
-                        this.id--;
-                    }
-
-                } else {
-                    this.id--;
-                }
+            if (token.getLexema().equals("then")) {
+                this.bloco();
+                this.pfalsa();
             } else {
                 this.id--;
             }
@@ -424,7 +396,7 @@ public class AnalisadorSintatico {
             } else {
                 //chamada_procedimento
                 this.argumentos();
-            } 
+            }
         } else {
             this.id--;
         }
@@ -461,12 +433,12 @@ public class AnalisadorSintatico {
     private void expressao() {
         this.termo();
         this.expressaoLinha();
-    } 
-    
-    private void expressaoLinha(){
+    }
+
+    private void expressaoLinha() {
         this.id++;
         Token token = this.getProximoToken();
-        if(token.getLexema().equals("+") || token.getLexema().equals("-")){
+        if (token.getLexema().equals("+") || token.getLexema().equals("-")) {
             this.termoLogico();
             this.expressaoLinha();
         } else {
@@ -500,7 +472,7 @@ public class AnalisadorSintatico {
             this.id--;
         }
     }
-*/
+     */
     private void pfalsa() {
         this.expressao();
         this.id++;
@@ -577,56 +549,56 @@ public class AnalisadorSintatico {
         this.relacao();
         this.expressao();
     }
-    
-    private void relacao(){
+
+    private void relacao() {
         this.id++;
         Token token = this.getProximoToken();
-        if (!token.getLexema().equals("=") && !token.getLexema().equals(">") && !token.getLexema().equals("<") &&
-                !token.getLexema().equals(">=") && !token.getLexema().equals("<=") && !token.getLexema().equals("<>") ) {
+        if (!token.getLexema().equals("=") && !token.getLexema().equals(">") && !token.getLexema().equals("<")
+                && !token.getLexema().equals(">=") && !token.getLexema().equals("<=") && !token.getLexema().equals("<>")) {
             this.id--;
         }
     }
-    
-    private void termo(){
+
+    private void termo() {
         this.fator();
         this.termoLinha();
     }
-    
-    private void termoLinha(){
+
+    private void termoLinha() {
         this.id++;
         Token token = this.getProximoToken();
-        if(token.getLexema().equals("*") || token.getLexema().equals("/") || token.getLexema().equals("and")){
+        if (token.getLexema().equals("*") || token.getLexema().equals("/") || token.getLexema().equals("and")) {
             this.fator();
             this.termoLinha();
         } else {
             this.id--;
         }
     }
-    
-    private void fator(){
+
+    private void fator() {
         this.id++;
         Token token = this.getProximoToken();
-        if(token.getLexema().equals("(")){
+        if (token.getLexema().equals("(")) {
             this.expressao();
             this.id++;
             token = this.getProximoToken();
-            if(!token.getLexema().equals(")")){
+            if (!token.getLexema().equals(")")) {
                 this.id--;
             }
-        } else if(!token.getClasse().equals("cInt") && !token.getClasse().equals("cReal")){
+        } else if (!token.getClasse().equals("cInt") && !token.getClasse().equals("cReal")) {
             //NÃO SEI SE ESTÁ CERTO, POIS ELE VAI TESTAR AS DUAS CONDIÇÕES
             this.id++;
             token = this.getProximoToken();
-            this.id-=2;
-            if(token.getLexema().equals("(")){
+            this.id -= 2;
+            if (token.getLexema().equals("(")) {
                 this.funcao();
             } else {
                 this.variaveis();
             }
         }
     }
-    
-    private void funcao(){
+
+    private void funcao() {
         this.id++;
         Token token = this.getProximoToken();
         if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
@@ -635,18 +607,18 @@ public class AnalisadorSintatico {
             this.id--;
         }
     }
-    
-    private void variavel(){
+
+    private void variavel() {
         this.id++;
         Token token = this.getProximoToken();
         if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
             this.id++;
             token = this.getProximoToken();
-            if(token.getLexema().equals("[")){
+            if (token.getLexema().equals("[")) {
                 this.expressao();
                 this.id++;
                 token = this.getProximoToken();
-                if(!token.getLexema().equals("]")){
+                if (!token.getLexema().equals("]")) {
                     this.id--;
                 }
             } else {
