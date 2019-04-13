@@ -2,7 +2,9 @@ package View;
 
 import Control.AnalisadorLexico;
 import Control.AnalisadorSintatico;
+import Model.Simbolo;
 import Model.Token;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -158,6 +160,13 @@ public class Main extends javax.swing.JFrame {
             List<Token> tokens = al.getTokens();
             as = new AnalisadorSintatico(tokens);
             as.analisar();
+            Iterator<Simbolo> it = as.getSimbolos().iterator();
+            int i = 0;
+            while(it.hasNext()){
+                Simbolo simbolo = it.next();
+                System.out.println(i++ + " - Lexema: " + simbolo.getLexema() + " Categoria: " + simbolo.getCategoria()
+                + " Tipo: " + simbolo.getTipo() + " Endereço: " + simbolo.getEndereco());
+            }
             this.areaItens.setText(al.tokensToString());
         }
     }//GEN-LAST:event_btnAvaliarActionPerformed

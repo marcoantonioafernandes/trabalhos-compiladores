@@ -10,17 +10,16 @@ public class AnalisadorLexico {
 
     private List<Token> tokens;
     private TreeSet<String> reservadas;
-    private TreeSet<Simbolo> simbolos;
 
     public AnalisadorLexico() {
         this.preencheReservadas();
         this.tokens = new ArrayList<>();
-        this.simbolos = new TreeSet<>();
     }
 
     public List<Token> getTokens(){
         return this.tokens;
     }
+    
     public String tokensToString() {
         StringBuilder sb = new StringBuilder();
         for (Token token : this.tokens) {
@@ -32,7 +31,6 @@ public class AnalisadorLexico {
 
     public void analisar(String[] f) {
         this.tokens = new ArrayList<>();
-        this.simbolos = new TreeSet<>();
         int linha, coluna;
         int i, j = 0;
 
@@ -77,9 +75,6 @@ public class AnalisadorLexico {
                         tokens.add(new Token("Palavra Reservada", "cId", s.toLowerCase(), linha, coluna));
                     } else {
                         tokens.add(new Token("Identificador", "cId", s.toLowerCase(), linha, coluna));
-                        if (!this.simbolos.contains(new Simbolo(s, "Variável"))) {
-                            this.simbolos.add(new Simbolo(s, "Variável"));
-                        }
                     }
                     j--;
                 } else if (f[i].charAt(j) == '-' || f[i].charAt(j) == '+'

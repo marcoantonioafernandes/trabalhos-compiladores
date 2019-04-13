@@ -4,18 +4,44 @@ import java.util.Objects;
 
 public class Simbolo implements Comparable {
     private String lexema;
-    private String funcao;
-
-    public Simbolo(String lexema, String funcao) {
+    private String categoria;
+    private String tipo;
+    private String endereco;
+    
+    public Simbolo(String lexema, String categoria, String tipo, String endereco) {
         this.lexema = lexema;
-        this.funcao = funcao;
+        this.categoria = categoria;
+        this.tipo = tipo;
+        this.endereco = endereco;
     }
+
+    public String getLexema() {
+        return lexema;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+    
+    public void setTipo(String tipo){
+        this.tipo = tipo;
+    }
+    
+    
 
     @Override
     public int hashCode() {
         int hash = 5;
         hash = 47 * hash + Objects.hashCode(this.lexema);
-        hash = 47 * hash + Objects.hashCode(this.funcao);
+        hash = 47 * hash + Objects.hashCode(this.categoria);
         return hash;
     }
 
@@ -31,7 +57,7 @@ public class Simbolo implements Comparable {
         if (!Objects.equals(this.lexema, other.lexema)) {
             return false;
         }
-        if (!Objects.equals(this.funcao, other.funcao)) {
+        if (!Objects.equals(this.categoria, other.categoria)) {
             return false;
         }
         return true;
@@ -49,11 +75,9 @@ public class Simbolo implements Comparable {
         if (!Objects.equals(this.lexema, other.lexema)) {
             return -1;
         }
-        if (!Objects.equals(this.funcao, other.funcao)) {
+        if (!Objects.equals(this.categoria, other.categoria)) {
             return -1;
         }
         return 0;
     }
-    
-    
 }
