@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.table.DefaultTableModel;
 
 public class Main extends javax.swing.JFrame {
 
@@ -31,15 +32,22 @@ public class Main extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel4 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        btnAvaliar = new javax.swing.JButton();
+        btnSair = new javax.swing.JButton();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
         panelFonte = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         areaFonte = new javax.swing.JTextArea();
         panelItens = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         areaItens = new javax.swing.JTextArea();
-        jPanel3 = new javax.swing.JPanel();
-        btnAvaliar = new javax.swing.JButton();
-        btnSair = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tabelaSimbolos = new javax.swing.JTable();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        areaMessagens = new javax.swing.JTextArea();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -51,45 +59,6 @@ public class Main extends javax.swing.JFrame {
         setTitle("Compiladores");
 
         jPanel4.setLayout(new java.awt.GridLayout(1, 0));
-
-        panelFonte.setBorder(javax.swing.BorderFactory.createTitledBorder("Fonte"));
-
-        areaFonte.setColumns(20);
-        areaFonte.setRows(5);
-        jScrollPane1.setViewportView(areaFonte);
-
-        javax.swing.GroupLayout panelFonteLayout = new javax.swing.GroupLayout(panelFonte);
-        panelFonte.setLayout(panelFonteLayout);
-        panelFonteLayout.setHorizontalGroup(
-            panelFonteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)
-        );
-        panelFonteLayout.setVerticalGroup(
-            panelFonteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
-        );
-
-        jPanel4.add(panelFonte);
-
-        panelItens.setBorder(javax.swing.BorderFactory.createTitledBorder("Itens Léxicos"));
-
-        areaItens.setEditable(false);
-        areaItens.setColumns(20);
-        areaItens.setRows(5);
-        jScrollPane2.setViewportView(areaItens);
-
-        javax.swing.GroupLayout panelItensLayout = new javax.swing.GroupLayout(panelItens);
-        panelItens.setLayout(panelItensLayout);
-        panelItensLayout.setHorizontalGroup(
-            panelItensLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)
-        );
-        panelItensLayout.setVerticalGroup(
-            panelItensLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
-        );
-
-        jPanel4.add(panelItens);
 
         jPanel3.setLayout(new java.awt.GridLayout(1, 0));
 
@@ -110,6 +79,95 @@ public class Main extends javax.swing.JFrame {
             }
         });
         jPanel3.add(btnSair);
+
+        panelFonte.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+
+        areaFonte.setColumns(20);
+        areaFonte.setRows(5);
+        jScrollPane1.setViewportView(areaFonte);
+
+        javax.swing.GroupLayout panelFonteLayout = new javax.swing.GroupLayout(panelFonte);
+        panelFonte.setLayout(panelFonteLayout);
+        panelFonteLayout.setHorizontalGroup(
+            panelFonteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 753, Short.MAX_VALUE)
+        );
+        panelFonteLayout.setVerticalGroup(
+            panelFonteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("Fonte", panelFonte);
+
+        panelItens.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+
+        areaItens.setEditable(false);
+        areaItens.setColumns(20);
+        areaItens.setRows(5);
+        jScrollPane2.setViewportView(areaItens);
+
+        javax.swing.GroupLayout panelItensLayout = new javax.swing.GroupLayout(panelItens);
+        panelItens.setLayout(panelItensLayout);
+        panelItensLayout.setHorizontalGroup(
+            panelItensLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 753, Short.MAX_VALUE)
+        );
+        panelItensLayout.setVerticalGroup(
+            panelItensLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("Itens Léxicos", panelItens);
+
+        tabelaSimbolos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Lexema", "Categoria", "Tipo", "Endereço"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane3.setViewportView(tabelaSimbolos);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 755, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("Tabela de Símbolos", jPanel1);
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Mensagens"));
+
+        areaMessagens.setColumns(20);
+        areaMessagens.setRows(5);
+        jScrollPane4.setViewportView(areaMessagens);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane4)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         jMenu1.setText("Arquivo");
         jMenuBar1.add(jMenu1);
@@ -136,14 +194,24 @@ public class Main extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 775, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jTabbedPane1)
+                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jTabbedPane1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -162,12 +230,23 @@ public class Main extends javax.swing.JFrame {
             as.analisar();
             Iterator<Simbolo> it = as.getSimbolos().iterator();
             int i = 0;
-            while(it.hasNext()){
-                Simbolo simbolo = it.next();
-                System.out.println(i++ + " - Lexema: " + simbolo.getLexema() + " Categoria: " + simbolo.getCategoria()
-                + " Tipo: " + simbolo.getTipo() + " Endereço: " + simbolo.getEndereco());
+            if(as.getMsgErro().equals("")){
+                this.areaMessagens.setText("Analise sintática concluída");
+            } else {
+                this.areaMessagens.setText(as.getMsgErro());
             }
-            this.areaItens.setText(al.tokensToString());
+            
+            DefaultTableModel tabSimbolos = (DefaultTableModel) this.tabelaSimbolos.getModel();
+            tabSimbolos.setRowCount(0);
+            
+            while(it.hasNext()){                
+                Simbolo simbolo = it.next();                                                 
+                String[] row = {simbolo.getLexema(), simbolo.getCategoria(), simbolo.getTipo(), simbolo.getEndereco()};         
+                /* System.out.println(i++ + " - Lexema: " + simbolo.getLexema() + " Categoria: " + simbolo.getCategoria()
+                + " Tipo: " + simbolo.getTipo() + " Endereço: " + simbolo.getEndereco()); */
+                tabSimbolos.addRow(row);
+            }
+            this.areaItens.setText(al.tokensToString());            
         }
     }//GEN-LAST:event_btnAvaliarActionPerformed
 
@@ -228,6 +307,7 @@ public class Main extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea areaFonte;
     private javax.swing.JTextArea areaItens;
+    private javax.swing.JTextArea areaMessagens;
     private javax.swing.JButton btnAvaliar;
     private javax.swing.JButton btnSair;
     private javax.swing.JMenu jMenu1;
@@ -236,11 +316,17 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenu jMenu5;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JPanel panelFonte;
     private javax.swing.JPanel panelItens;
+    private javax.swing.JTable tabelaSimbolos;
     // End of variables declaration//GEN-END:variables
 }

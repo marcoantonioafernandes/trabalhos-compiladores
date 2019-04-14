@@ -39,12 +39,12 @@ public class AnalisadorSintatico {
         this.erro = false;
         System.out.println(tokens);
         this.programa();
-        if (this.erro) {
+        /* if (this.erro) {
             System.out.println("Erro na analise sintática");
             System.out.println("ERRO -> "+ this.msgErro);
         } else {
             System.out.println("Analise sintática concluída");
-        }
+        } */
         return this.msgErro;
     }
 
@@ -972,5 +972,13 @@ public class AnalisadorSintatico {
             this.erro = true;
         }
     }
+
+    public String getMsgErro() {
+        return msgErro;
+    }
+
+    public void setMsgErro(String msgErro) {
+        this.msgErro = msgErro;
+    }    
 
 }
