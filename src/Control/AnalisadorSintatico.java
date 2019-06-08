@@ -40,11 +40,11 @@ public class AnalisadorSintatico {
         System.out.println(tokens);
         this.programa();
         /* if (this.erro) {
-            System.out.println("Erro na analise sintática");
-            System.out.println("ERRO -> "+ this.msgErro);
-        } else {
-            System.out.println("Analise sintática concluída");
-        } */
+         System.out.println("Erro na analise sintática");
+         System.out.println("ERRO -> "+ this.msgErro);
+         } else {
+         System.out.println("Analise sintática concluída");
+         } */
         return this.msgErro;
     }
 
@@ -78,6 +78,15 @@ public class AnalisadorSintatico {
             token = this.getProximoToken();
             if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
                 this.addSimbolo(token.getLexema(), "Program", "", "");
+                //AÇÃO {A01}
+                this.id++;
+                token = getProximoToken();
+                if (!token.getLexema().equals(";")) {
+                    this.msgErro = String.format("Erro: \n(%03d) - %s",
+                            token.getLinha(), "Falta um ;");
+                    this.erro = true;
+                    return;
+                }
 
                 this.corpo();
                 if (this.erro) {
@@ -88,17 +97,18 @@ public class AnalisadorSintatico {
                 token = this.getProximoToken();
                 if (!token.getLexema().equals(".")) {
                     this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha()-1, "Ponto no fim do arquivo.");
+                            token.getLinha() - 1, "Ponto no fim do arquivo.");
                     this.erro = true;
                 }
+                //AÇÃO {A45}
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Id inválido.");
+                        token.getLinha(), "Id inválido.");
                 this.erro = true;
             }
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Palavra reservada program.");
+                    token.getLinha(), "Palavra reservada program.");
             this.erro = true;
         }
     }
@@ -113,11 +123,13 @@ public class AnalisadorSintatico {
         if (this.erro) {
             return;
         }
+        //AÇÃO {A44}
 
         this.bloco();
         if (this.erro) {
             return;
         }
+        //AÇÃO {A46}
     }
 
     private void declara() {
@@ -145,11 +157,12 @@ public class AnalisadorSintatico {
             token = getProximoToken();
             if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
                 this.addSimbolo(token.getLexema(), "Procedure", "", "");
-
+                //AÇÃO {A04}
                 this.parametros();
                 if (this.erro) {
                     return;
                 }
+                //AÇÃO {A48}
 
                 this.id++;
                 token = getProximoToken();
@@ -158,6 +171,7 @@ public class AnalisadorSintatico {
                     if (this.erro) {
                         return;
                     }
+                    //AÇÃO {A56}
 
                     this.id++;
                     token = getProximoToken();
@@ -165,7 +179,7 @@ public class AnalisadorSintatico {
                         this.rotina();
                     } else {
                         this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um ;");
+                                token.getLinha(), "Falta um ;");
                         this.erro = true;
                     }
                 } else {
@@ -175,7 +189,7 @@ public class AnalisadorSintatico {
                 }
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Id inválido");
+                        token.getLinha(), "Id inválido");
                 this.erro = true;
             }
         } else if (token.getLexema().equals("function")) {
@@ -184,11 +198,12 @@ public class AnalisadorSintatico {
             if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
                 Simbolo simbolo = new Simbolo(token.getLexema(), "Função", "", "");
                 this.simbolosParaAdd.add(simbolo);
-
+                //AÇÃO {A05}
                 this.parametros();
                 if (this.erro) {
                     return;
                 }
+                //AÇÃO {A48}
 
                 this.id++;
                 token = getProximoToken();
@@ -197,6 +212,7 @@ public class AnalisadorSintatico {
                     if (this.erro) {
                         return;
                     }
+                    //AÇÃO {A47}
 
                     this.id++;
                     token = getProximoToken();
@@ -205,6 +221,7 @@ public class AnalisadorSintatico {
                         if (this.erro) {
                             return;
                         }
+                        //AÇÃO {A56}
 
                         this.id++;
                         token = getProximoToken();
@@ -216,12 +233,12 @@ public class AnalisadorSintatico {
 
                         } else {
                             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um ;");
+                                    token.getLinha(), "Falta um ;");
                             this.erro = true;
                         }
                     } else {
                         this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um ;");
+                                token.getLinha(), "Falta um ;");
                         this.erro = true;
                     }
                 } else {
@@ -231,7 +248,7 @@ public class AnalisadorSintatico {
                 }
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Id inválido");
+                        token.getLinha(), "Id inválido");
                 this.erro = true;
             }
         } else {
@@ -253,12 +270,12 @@ public class AnalisadorSintatico {
             token = this.getProximoToken();
             if (!token.getLexema().equals("end")) {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um end");
+                        token.getLinha(), "Falta um end");
                 this.erro = true;
             }
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um begin");
+                    token.getLinha(), "Falta um begin");
             this.erro = true;
         }
     }
@@ -274,7 +291,7 @@ public class AnalisadorSintatico {
             this.sentencasP();
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um ;");
+                    token.getLinha(), "Falta um ;");
             this.erro = true;
         }
     }
@@ -302,6 +319,7 @@ public class AnalisadorSintatico {
             if (this.erro) {
                 return;
             }
+            //AÇÃO {A02}
 
             this.id++;
             token = getProximoToken();
@@ -309,12 +327,12 @@ public class AnalisadorSintatico {
                 this.dvarP();
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um ;");
+                        token.getLinha(), "Falta um ;");
                 this.erro = true;
             }
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um :");
+                    token.getLinha(), "Falta um :");
             this.erro = true;
         }
     }
@@ -335,10 +353,11 @@ public class AnalisadorSintatico {
         if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
             Simbolo simbolo = new Simbolo(token.getLexema(), "Variável", "", this.endereco++ + "");
             this.simbolosParaAdd.add(simbolo);
+            //AÇÃO {A03}
             this.variaveisLinha();
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Id inválido");
+                    token.getLinha(), "Id inválido");
             this.erro = true;
         }
     }
@@ -353,10 +372,11 @@ public class AnalisadorSintatico {
             if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
                 Simbolo simbolo = new Simbolo(token.getLexema(), "Variável", "", this.endereco++ + "");
                 this.simbolosParaAdd.add(simbolo);
+                //AÇÃO {A03}
                 this.variaveisLinha();
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Id inválido");
+                        token.getLinha(), "Id inválido");
                 this.erro = true;
             }
         } else {
@@ -367,48 +387,8 @@ public class AnalisadorSintatico {
     private void tipo() {
         this.id++;
         Token token = this.getProximoToken();
-        if (token.getLexema().equals("Array")) {
-            this.addListaSimbolos("Array");
-            this.id++;
-            token = this.getProximoToken();
-            if (token.getLexema().equals("[")) {
-                this.indice();
-                if (this.erro) {
-                    return;
-                }
-
-                this.id++;
-                token = this.getProximoToken();
-                if (token.getLexema().equals("]")) {
-                    this.id++;
-                    token = this.getProximoToken();
-                    if (token.getLexema().equals("of")) {
-                        this.tipo();
-                        if (this.erro) {
-                            return;
-                        }
-                    } else {
-                        this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um of");
-                        this.erro = true;
-                    }
-                } else {
-                    this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um ]");
-                    this.erro = true;
-                }
-            } else {
-                this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um [");
-                this.erro = true;
-            }
-
-        } else if (!token.getLexema().equals("integer") && !token.getLexema().equals("Real")) {
-            this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta o tipo do array (integer ou real)");
-            this.erro = true;
-        } else {
-            this.addListaSimbolos(token.getLexema().equals("integer") ? "Inteiro" : "Real");
+        if (token.getLexema().equals("integer")) {
+            this.addListaSimbolos("Inteiro");
         }
     }
 
@@ -417,7 +397,7 @@ public class AnalisadorSintatico {
         Token token = this.getProximoToken();
         if (!token.getTipo().equals("cInt")) {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Não é um número inteiro");
+                    token.getLinha(), "Não é um número inteiro");
             this.erro = true;
         }
     }
@@ -435,7 +415,7 @@ public class AnalisadorSintatico {
             token = this.getProximoToken();
             if (!token.getLexema().equals(")")) {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um )");
+                        token.getLinha(), "Falta um )");
                 this.erro = true;
             }
         } else {
@@ -456,6 +436,7 @@ public class AnalisadorSintatico {
             if (this.erro) {
                 return;
             }
+            //AÇÃO {A06}
 
             this.id++;
             token = this.getProximoToken();
@@ -466,7 +447,7 @@ public class AnalisadorSintatico {
             }
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), ";");
+                    token.getLinha(), ";");
             this.erro = true;
         }
     }
@@ -477,6 +458,7 @@ public class AnalisadorSintatico {
         if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
             Simbolo simbolo = new Simbolo(token.getLexema(), "Parâmetro", "", this.endereco++ + "");
             this.simbolosParaAdd.add(simbolo);
+            //AÇÃO {A07}
             this.listaIdLinha();
         } else {
             this.id--;
@@ -492,6 +474,7 @@ public class AnalisadorSintatico {
             if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
                 Simbolo simbolo = new Simbolo(token.getLexema(), "Parâmetro", "", this.endereco++ + "");
                 this.simbolosParaAdd.add(simbolo);
+                //AÇÃO {A07}
                 this.listaIdLinha();
             } else {
                 this.id--;
@@ -522,14 +505,14 @@ public class AnalisadorSintatico {
                 }
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta (");
+                        token.getLinha(), "Falta (");
                 this.erro = true;
             }
         } else if (token.getLexema().equals("write")) {
             this.id++;
             token = this.getProximoToken();
             if (token.getLexema().equals("(")) {
-                this.varWrite();
+                this.expWrite();
                 if (this.erro) {
                     return;
                 }
@@ -543,13 +526,35 @@ public class AnalisadorSintatico {
                 }
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um (");
+                        token.getLinha(), "Falta um (");
+                this.erro = true;
+            }
+        } else if (token.getLexema().equals("writeln")) {
+            this.id++;
+            token = this.getProximoToken();
+            if (token.getLexema().equals("(")) {
+                this.expWrite();
+                if (this.erro) {
+                    return;
+                }
+
+                this.id++;
+                token = this.getProximoToken();
+                if (!token.getLexema().equals(")")) {
+                    this.msgErro = String.format("Erro: \n(%03d) - %s",
+                            token.getLinha(), "Falta )");
+                    this.erro = true;
+                }
+            } else {
+                this.msgErro = String.format("Erro: \n(%03d) - %s",
+                        token.getLinha(), "Falta um (");
                 this.erro = true;
             }
         } else if (token.getLexema().equals("for")) {
             this.id++;
             token = this.getProximoToken();
             if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
+                //AÇÃO {A57}
                 this.id++;
                 token = this.getProximoToken();
                 if (token.getLexema().equals(":=")) {
@@ -557,6 +562,7 @@ public class AnalisadorSintatico {
                     if (this.erro) {
                         return;
                     }
+                    //AÇÃO {A11}
 
                     this.id++;
                     token = this.getProximoToken();
@@ -565,19 +571,21 @@ public class AnalisadorSintatico {
                         if (this.erro) {
                             return;
                         }
+                        //AÇÃO {A12}
 
                         this.id++;
                         token = this.getProximoToken();
                         if (token.getLexema().equals("do")) {
                             this.bloco();
+                            //AÇÃO {A13}
                         } else {
                             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um do");
+                                    token.getLinha(), "Falta um do");
                             this.erro = true;
                         }
                     } else {
                         this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um to");
+                                token.getLinha(), "Falta um to");
                         this.erro = true;
                     }
                 } else {
@@ -587,10 +595,11 @@ public class AnalisadorSintatico {
                 }
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Id inválido");
+                        token.getLinha(), "Id inválido");
                 this.erro = true;
             }
         } else if (token.getLexema().equals("repeat")) {
+            //AÇÃO {A14}
             this.sentencas();
             if (this.erro) {
                 return;
@@ -599,24 +608,28 @@ public class AnalisadorSintatico {
             token = this.getProximoToken();
             if (token.getLexema().equals("until")) {
                 this.expressaoLogica();
+                //AÇÃO {A15}
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um until");
+                        token.getLinha(), "Falta um until");
                 this.erro = true;
             }
         } else if (token.getLexema().equals("while")) {
+            //AÇÃO {A16}
             this.expressaoLogica();
             if (this.erro) {
                 return;
             }
+            //AÇÃO {A17}
 
             this.id++;
             token = this.getProximoToken();
             if (token.getLexema().equals("do")) {
                 this.bloco();
+                //AÇÃO {A18}
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um do");
+                        token.getLinha(), "Falta um do");
                 this.erro = true;
             }
         } else if (token.getLexema().equals("if")) {
@@ -624,6 +637,7 @@ public class AnalisadorSintatico {
             if (this.erro) {
                 return;
             }
+            //AÇÃO {A19}
 
             this.id++;
             token = this.getProximoToken();
@@ -632,25 +646,36 @@ public class AnalisadorSintatico {
                 if (this.erro) {
                     return;
                 }
+                //AÇÃO {A20}
 
                 this.pfalsa();
+                //AÇÃO {A21}
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um then");
+                        token.getLinha(), "Falta um then");
                 this.erro = true;
             }
         } else if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
             this.id++;
             token = this.getProximoToken();
             if (token.getLexema().equals(":=")) {
+                //é uma variável
+                this.id--;
+                token = this.getProximoToken();
+                //AÇÃO {A49}
+                this.id++;
+                token = this.getProximoToken();
                 this.expressao();
+                //AÇÃO {A22}
             } else {
                 //chamada_procedimento
+                //AÇÃO {A50}
                 this.argumentos();
+                //AÇÃO {A23}
             }
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Id inválido");
+                    token.getLinha(), "Id inválido");
             this.erro = true;
         }
     }
@@ -659,6 +684,7 @@ public class AnalisadorSintatico {
         this.id++;
         Token token = this.getProximoToken();
         if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
+            //AÇÃO {A07}
             this.id++;
             token = this.getProximoToken();
             if (token.getLexema().equals(",")) {
@@ -668,8 +694,19 @@ public class AnalisadorSintatico {
             }
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Id inválido");
+                    token.getLinha(), "Id inválido");
             this.erro = true;
+        }
+    }
+
+    private void expWrite() {
+        this.id++;
+        Token token = this.getProximoToken();
+        if (token.getLexema().equals("string")) {
+            //AÇÃO {A59}
+        } else {
+            this.id--;
+            this.varWrite();
         }
     }
 
@@ -677,6 +714,7 @@ public class AnalisadorSintatico {
         this.id++;
         Token token = this.getProximoToken();
         if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
+            //AÇÃO {A09}
             this.id++;
             token = this.getProximoToken();
             if (token.getLexema().equals(",")) {
@@ -686,7 +724,7 @@ public class AnalisadorSintatico {
             }
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Id inválido");
+                    token.getLinha(), "Id inválido");
             this.erro = true;
         }
     }
@@ -703,11 +741,20 @@ public class AnalisadorSintatico {
     private void expressaoLinha() {
         this.id++;
         Token token = this.getProximoToken();
-        if (token.getLexema().equals("+") || token.getLexema().equals("-")) {
+        if (token.getLexema().equals("+")) {
             this.termo();
             if (this.erro) {
                 return;
             }
+            //AÇÃO {A37}
+
+            this.expressaoLinha();
+        } else if (token.getLexema().equals("-")) {
+            this.termo();
+            if (this.erro) {
+                return;
+            }
+            //AÇÃO {A38}
 
             this.expressaoLinha();
         } else {
@@ -720,6 +767,7 @@ public class AnalisadorSintatico {
         if (this.erro) {
             return;
         }
+        // AÇÃO {A26}
 
         this.expressaoLogicaLinha();
     }
@@ -732,6 +780,7 @@ public class AnalisadorSintatico {
             if (this.erro) {
                 return;
             }
+            // AÇÃO {A26}
 
             this.expressaoLogicaLinha();
         } else {
@@ -740,20 +789,21 @@ public class AnalisadorSintatico {
     }
 
     /*
-    private void chamadaProcedimento() {
-        this.id++;
-        Token token = this.getProximoToken();
-        if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
-            this.argumentos();
-        } else {
-            this.id--;
-        }
-    }
+     private void chamadaProcedimento() {
+     this.id++;
+     Token token = this.getProximoToken();
+     if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
+     this.argumentos();
+     } else {
+     this.id--;
+     }
+     }
      */
     private void pfalsa() {
         this.id++;
         Token token = this.getProximoToken();
         if (token.getLexema().equals("else")) {
+            //AÇÃO {A25}
             this.bloco();
         } else {
             this.id--;
@@ -773,7 +823,7 @@ public class AnalisadorSintatico {
             token = this.getProximoToken();
             if (!token.getLexema().equals(")")) {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um )");
+                        token.getLinha(), "Falta um )");
                 this.erro = true;
             }
         } else {
@@ -801,6 +851,7 @@ public class AnalisadorSintatico {
         if (this.erro) {
             return;
         }
+        // AÇÃO {A27}
 
         this.termoLogicoLinha();
     }
@@ -813,6 +864,7 @@ public class AnalisadorSintatico {
             if (this.erro) {
                 return;
             }
+            // AÇÃO {A27}
             this.termoLogicoLinha();
         } else {
             this.id--;
@@ -832,12 +884,17 @@ public class AnalisadorSintatico {
             token = this.getProximoToken();
             if (!token.getLexema().equals(")")) {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um )");
+                        token.getLinha(), "Falta um )");
                 this.erro = true;
             }
         } else if (token.getLexema().equals("not")) {
             this.fatorLogico();
-        } else if (!token.getLexema().equals("true") && !token.getLexema().equals("false")) {
+            // AÇÃO {A28}
+        } else if (token.getLexema().equals("true")) {
+            // AÇÃO {A29}
+        } else if (token.getLexema().equals("false")) {
+            // AÇÃO {A30}
+        } else {
             this.id--;
             this.relacional();
         }
@@ -849,8 +906,25 @@ public class AnalisadorSintatico {
             return;
         }
 
-        this.relacao();
-        if (this.erro) {
+        this.id++;
+        Token token = this.getProximoToken();
+
+        if (token.getLexema().equals("=")) {
+            //AÇÃO{A31}
+        } else if (token.getLexema().equals(">")) {
+            //AÇÃO {A32}
+        } else if (token.getLexema().equals("<")) {
+            //AÇÃO {A34}
+        } else if (token.getLexema().equals(">=")) {
+            //AÇÃO {A33}
+        } else if (token.getLexema().equals("<=")) {
+            //AÇÃO {A35}
+        } else if (token.getLexema().equals("<>")) {
+            //AÇÃO {A36}
+        } else {
+            this.msgErro = String.format("Erro: \n(%03d) - %s",
+                    token.getLinha(), "Falta um operador lógico (=, >, <, >=, <=, <>)");
+            this.erro = true;
             return;
         }
 
@@ -863,7 +937,7 @@ public class AnalisadorSintatico {
         if (!token.getLexema().equals("=") && !token.getLexema().equals(">") && !token.getLexema().equals("<")
                 && !token.getLexema().equals(">=") && !token.getLexema().equals("<=") && !token.getLexema().equals("<>")) {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um operador lógico (=, >, <, >=, <=, <>)");
+                    token.getLinha(), "Falta um operador lógico (=, >, <, >=, <=, <>)");
             this.erro = true;
         }
     }
@@ -880,12 +954,19 @@ public class AnalisadorSintatico {
     private void termoLinha() {
         this.id++;
         Token token = this.getProximoToken();
-        if (token.getLexema().equals("*") || token.getLexema().equals("/") || token.getLexema().equals("and")) {
+        if (token.getLexema().equals("*")) {
             this.fator();
             if (this.erro) {
                 return;
             }
-
+            //AÇÃO {A39}
+            this.termoLinha();
+        } else if (token.getLexema().equals("/")) {
+            this.fator();
+            if (this.erro) {
+                return;
+            }
+            //AÇÃO {A40}
             this.termoLinha();
         } else {
             this.id--;
@@ -905,12 +986,14 @@ public class AnalisadorSintatico {
             token = this.getProximoToken();
             if (!token.getLexema().equals(")")) {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um )");
+                        token.getLinha(), "Falta um )");
                 this.erro = true;
             }
         } else if (!token.getClasse().equals("cInt") && !token.getClasse().equals("cReal")) {
             this.id--;
             this.fatorP();
+        } else {
+            //AÇÃO  {A41}
         }
     }
 
@@ -924,11 +1007,12 @@ public class AnalisadorSintatico {
             if (token.getLexema().equals("(")) {
                 this.funcao();
             } else {
-                this.variaveis();
+                //AÇÃO {A55}
+                this.variavel();
             }
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Id inválido");
+                    token.getLinha(), "Id inválido");
             this.erro = true;
         }
     }
@@ -938,9 +1022,10 @@ public class AnalisadorSintatico {
         Token token = this.getProximoToken();
         if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
             this.argumentos();
+            //AÇÃO {A42}
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Id inválido");
+                    token.getLinha(), "Id inválido");
             this.erro = true;
         }
     }
@@ -949,26 +1034,10 @@ public class AnalisadorSintatico {
         this.id++;
         Token token = this.getProximoToken();
         if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
-            this.id++;
-            token = this.getProximoToken();
-            if (token.getLexema().equals("[")) {
-                this.expressao();
-                if (this.erro) {
-                    return;
-                }
-                this.id++;
-                token = this.getProximoToken();
-                if (!token.getLexema().equals("]")) {
-                    this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Falta um ]");
-                    this.erro = true;
-                }
-            } else {
-                this.id--;
-            }
+            //AÇÃO {A55} AQUI
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Id inválido");
+                    token.getLinha(), "Id inválido");
             this.erro = true;
         }
     }
@@ -979,6 +1048,6 @@ public class AnalisadorSintatico {
 
     public void setMsgErro(String msgErro) {
         this.msgErro = msgErro;
-    }    
+    }
 
 }
