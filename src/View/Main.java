@@ -2,7 +2,7 @@ package View;
 
 import Control.AnalisadorLexico;
 import Control.AnalisadorSintatico;
-import Model.Simbolo;
+import Model.Registro;
 import Model.Token;
 import java.awt.BorderLayout;
 import java.util.Iterator;
@@ -224,7 +224,7 @@ public class Main extends javax.swing.JFrame {
             List<Token> tokens = al.getTokens();
             as = new AnalisadorSintatico(tokens);
             as.analisar();
-            Iterator<Simbolo> it = as.getSimbolos().iterator();
+            Iterator<Registro> it = as.getSimbolos().iterator();
             int i = 0;
             if(as.getMsgErro().equals("")){
                 this.areaMessagens.setText("Analise sintática concluída");
@@ -236,8 +236,8 @@ public class Main extends javax.swing.JFrame {
             tabSimbolos.setRowCount(0);
             
             while(it.hasNext()){                
-                Simbolo simbolo = it.next();                                                 
-                String[] row = {simbolo.getLexema(), simbolo.getCategoria(), simbolo.getTipo(), simbolo.getEndereco()};         
+                Registro simbolo = it.next();                                                 
+                String[] row = {simbolo.getNome(), simbolo.getCategoria(), simbolo.getTipo(), simbolo.getEndereco()};         
                 /* System.out.println(i++ + " - Lexema: " + simbolo.getLexema() + " Categoria: " + simbolo.getCategoria()
                 + " Tipo: " + simbolo.getTipo() + " Endereço: " + simbolo.getEndereco()); */
                 tabSimbolos.addRow(row);

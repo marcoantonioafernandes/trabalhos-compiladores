@@ -5,7 +5,7 @@
  */
 package Control;
 
-import Model.Simbolo;
+import Model.Registro;
 import Model.Token;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,8 +19,8 @@ import java.util.TreeSet;
 public class AnalisadorSintatico {
 
     private List<Token> tokens;
-    private TreeSet<Simbolo> simbolos;
-    private ArrayList<Simbolo> simbolosParaAdd;
+    private TreeSet<Registro> simbolos;
+    private ArrayList<Registro> simbolosParaAdd;
     private int endereco;
     private int id;
     private boolean erro;
@@ -48,17 +48,17 @@ public class AnalisadorSintatico {
         return this.msgErro;
     }
 
-    public TreeSet<Simbolo> getSimbolos() {
+    public TreeSet<Registro> getSimbolos() {
         return simbolos;
     }
 
     private void addSimbolo(String lexema, String categoria, String tipo, String endereco) {
-        Simbolo simbolo = new Simbolo(lexema, categoria, tipo, endereco);
+        Registro simbolo = new Registro(lexema, categoria, tipo, endereco);
         this.simbolos.add(simbolo);
     }
 
     private void addListaSimbolos(String tipo) {
-        for (Simbolo simbolo : this.simbolosParaAdd) {
+        for (Registro simbolo : this.simbolosParaAdd) {
             simbolo.setTipo(tipo);
             this.simbolos.add(simbolo);
         }
@@ -196,7 +196,7 @@ public class AnalisadorSintatico {
             this.id++;
             token = getProximoToken();
             if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
-                Simbolo simbolo = new Simbolo(token.getLexema(), "Função", "", "");
+                Registro simbolo = new Registro(token.getLexema(), "Função", "", "");
                 this.simbolosParaAdd.add(simbolo);
                 //AÇÃO {A05}
                 this.parametros();
@@ -351,7 +351,7 @@ public class AnalisadorSintatico {
         this.id++;
         Token token = getProximoToken();
         if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
-            Simbolo simbolo = new Simbolo(token.getLexema(), "Variável", "", this.endereco++ + "");
+            Registro simbolo = new Registro(token.getLexema(), "Variável", "", this.endereco++ + "");
             this.simbolosParaAdd.add(simbolo);
             //AÇÃO {A03}
             this.variaveisLinha();
@@ -370,7 +370,7 @@ public class AnalisadorSintatico {
             token = getProximoToken();
 
             if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
-                Simbolo simbolo = new Simbolo(token.getLexema(), "Variável", "", this.endereco++ + "");
+                Registro simbolo = new Registro(token.getLexema(), "Variável", "", this.endereco++ + "");
                 this.simbolosParaAdd.add(simbolo);
                 //AÇÃO {A03}
                 this.variaveisLinha();
@@ -456,7 +456,7 @@ public class AnalisadorSintatico {
         this.id++;
         Token token = this.getProximoToken();
         if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
-            Simbolo simbolo = new Simbolo(token.getLexema(), "Parâmetro", "", this.endereco++ + "");
+            Registro simbolo = new Registro(token.getLexema(), "Parâmetro", "", this.endereco++ + "");
             this.simbolosParaAdd.add(simbolo);
             //AÇÃO {A07}
             this.listaIdLinha();
@@ -472,7 +472,7 @@ public class AnalisadorSintatico {
             this.id++;
             token = this.getProximoToken();
             if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
-                Simbolo simbolo = new Simbolo(token.getLexema(), "Parâmetro", "", this.endereco++ + "");
+                Registro simbolo = new Registro(token.getLexema(), "Parâmetro", "", this.endereco++ + "");
                 this.simbolosParaAdd.add(simbolo);
                 //AÇÃO {A07}
                 this.listaIdLinha();

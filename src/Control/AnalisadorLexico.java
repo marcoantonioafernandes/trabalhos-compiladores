@@ -1,6 +1,6 @@
 package Control;
 
-import Model.Simbolo;
+import Model.Registro;
 import Model.Token;
 import java.util.ArrayList;
 import java.util.List;

@@ -2,21 +2,21 @@ package Model;
 
 import java.util.Objects;
 
-public class Simbolo implements Comparable {
-    private String lexema;
+public class Registro implements Comparable {
+    private String nome;
     private String categoria;
     private String tipo;
     private String endereco;
     
-    public Simbolo(String lexema, String categoria, String tipo, String endereco) {
-        this.lexema = lexema;
+    public Registro(String nome, String categoria, String tipo, String endereco) {
+        this.nome = nome;
         this.categoria = categoria;
         this.tipo = tipo;
         this.endereco = endereco;
     }
 
-    public String getLexema() {
-        return lexema;
+    public String getNome() {
+        return nome;
     }
 
     public String getCategoria() {
@@ -40,7 +40,7 @@ public class Simbolo implements Comparable {
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 47 * hash + Objects.hashCode(this.lexema);
+        hash = 47 * hash + Objects.hashCode(this.nome);
         hash = 47 * hash + Objects.hashCode(this.categoria);
         return hash;
     }
@@ -53,8 +53,8 @@ public class Simbolo implements Comparable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Simbolo other = (Simbolo) obj;
-        if (!Objects.equals(this.lexema, other.lexema)) {
+        final Registro other = (Registro) obj;
+        if (!Objects.equals(this.nome, other.nome)) {
             return false;
         }
         if (!Objects.equals(this.categoria, other.categoria)) {
@@ -71,8 +71,8 @@ public class Simbolo implements Comparable {
         if (getClass() != obj.getClass()) {
             return -1;
         }
-        final Simbolo other = (Simbolo) obj;
-        if (!Objects.equals(this.lexema, other.lexema)) {
+        final Registro other = (Registro) obj;
+        if (!Objects.equals(this.nome, other.nome)) {
             return -1;
         }
         if (!Objects.equals(this.categoria, other.categoria)) {
