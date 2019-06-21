@@ -5,8 +5,31 @@ import java.util.Objects;
 public class Simbolo implements Comparable {
     private String lexema;
     private String categoria;
+    private int nivel;
+    private int offset;
+    private int numeroParametros;
+    private String rotulo;
+    private TabelaSimbolos tabelaSimbolos;
+    //Variáveis abaixo serão excluídas após a modificação do programa
+    private String endereco; 
     private String tipo;
-    private String endereco;
+
+    public Simbolo(String lexema, String categoria, int nivel,  int offset, int numeroParametros, 
+            String rotulo, TabelaSimbolos tabelaSimbolos) {
+        this.lexema = lexema;
+        this.categoria = categoria;
+        this.nivel = nivel;
+        this.offset = offset;
+        this.numeroParametros = numeroParametros;
+        this.rotulo = rotulo;
+        this.endereco = endereco;
+        this.tabelaSimbolos = tabelaSimbolos;
+    }
+    
+    public Simbolo(String lexema, String categoria){
+        this.lexema = lexema;
+        this.categoria = categoria;
+    }
     
     public Simbolo(String lexema, String categoria, String tipo, String endereco) {
         this.lexema = lexema;
@@ -34,8 +57,46 @@ public class Simbolo implements Comparable {
     public void setTipo(String tipo){
         this.tipo = tipo;
     }
-    
-    
+
+    public int getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(int nivel) {
+        this.nivel = nivel;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
+    public int getNumeroParametros() {
+        return numeroParametros;
+    }
+
+    public void setNumeroParametros(int numeroParametros) {
+        this.numeroParametros = numeroParametros;
+    }
+
+    public String getRotulo() {
+        return rotulo;
+    }
+
+    public void setRotulo(String rotulo) {
+        this.rotulo = rotulo;
+    }
+
+    public TabelaSimbolos getTabelaSimbolos() {
+        return tabelaSimbolos;
+    }
+
+    public void setTabelaSimbolos(TabelaSimbolos tabelaSimbolos) {
+        this.tabelaSimbolos = tabelaSimbolos;
+    }
 
     @Override
     public int hashCode() {
