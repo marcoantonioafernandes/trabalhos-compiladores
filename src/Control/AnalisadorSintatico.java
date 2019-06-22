@@ -136,7 +136,7 @@ public class AnalisadorSintatico {
                     this.erro = true;
                 }
                 //AÇÃO {A45}
-                this.secaoDataAssembly += "_@DSP: times " + this.nivel * 4 + " db 0";
+                this.secaoDataAssembly += "_@DSP: times " + this.listaTabelasSimbolos.size() * 4 + " db 0";
                 //FIM DA AÇÃO {A45}
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
@@ -183,7 +183,7 @@ public class AnalisadorSintatico {
         }
         //AÇÃO {A46}
         this.secaoCorpoAssembly += "add esp, " + tabela.getEspacoVariaveisLocais() + "\n"
-                + "mov ebp, esp\n"
+                + "mov esp, ebp\n"
                 + "pop dword [_@DSP + " + simbolo.getNivel() * 4 + "]\n"
                 + "pop ebp\n"
                 + "ret\n";
@@ -810,7 +810,8 @@ public class AnalisadorSintatico {
                 this.expressao();
                 //AÇÃO {A22}
                 tabela = listaTabelasSimbolos.get(nivel);
-                int offset = tabela.getOffsetVariavel();
+                //int offset = tabela.getOffsetVariavel();
+                int offset = simbolo.getOffset();
                 this.secaoCorpoAssembly += "pop dword[ebp + ("+ offset +")]";
                 //FIM AÇÃO {A22}
             } else {
