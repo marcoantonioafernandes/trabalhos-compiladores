@@ -237,7 +237,7 @@ public class Main extends javax.swing.JFrame {
             
             while(it.hasNext()){                
                 Simbolo simbolo = it.next();                                                 
-                String[] row = {simbolo.getLexema(), simbolo.getCategoria(), simbolo.getTipo(), simbolo.getEndereco()};         
+                String[] row = {simbolo.getNome(), simbolo.getCategoria(), simbolo.getTipo(), simbolo.getEndereco()};         
                 /* System.out.println(i++ + " - Lexema: " + simbolo.getLexema() + " Categoria: " + simbolo.getCategoria()
                 + " Tipo: " + simbolo.getTipo() + " Endereço: " + simbolo.getEndereco()); */
                 tabSimbolos.addRow(row);

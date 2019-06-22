@@ -12,6 +12,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
+import Model.Simbolo;
+import Model.TabelaSimbolos;
+import Model.Token;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  *

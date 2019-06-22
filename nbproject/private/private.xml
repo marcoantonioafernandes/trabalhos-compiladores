@@ -5,9 +5,10 @@
         <group>
             <file>file:/C:/Users/Marco%20Antônio/Documents/Trabalhos/9P/Compiladores%202/trabalhos-compiladores/src/View/Main.java</file>
             <file>file:/C:/Users/Marco%20Antônio/Documents/Trabalhos/9P/Compiladores%202/trabalhos-compiladores/src/Control/AnalisadorSintatico.java</file>
-            <file>file:/C:/Users/Marco%20Antônio/Documents/Trabalhos/9P/Compiladores%202/trabalhos-compiladores/src/Model/Simbolo.java</file>
             <file>file:/C:/Users/Marco%20Antônio/Documents/Trabalhos/9P/Compiladores%202/trabalhos-compiladores/src/Model/Token.java</file>
             <file>file:/C:/Users/Marco%20Antônio/Documents/Trabalhos/9P/Compiladores%202/trabalhos-compiladores/src/Model/TabelaSimbolos.java</file>
+            <file>file:/C:/Users/Marco%20Antônio/Documents/Trabalhos/9P/Compiladores%202/trabalhos-compiladores/src/Control/AnalisadorLexico.java</file>
+            <file>file:/C:/Users/Marco%20Antônio/Documents/Trabalhos/9P/Compiladores%202/trabalhos-compiladores/src/Model/Registro.java</file>
         </group>
     </open-files>
 </project-private>

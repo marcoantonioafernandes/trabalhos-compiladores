@@ -84,13 +84,14 @@ public class TabelaSimbolos {
     public void calculaOffsetParametros(){
         Iterator<Simbolo> it = this.simbolos.descendingIterator();
         int i = 1;
+        
         while(it.hasNext()){
             Simbolo simbolo = it.next();
             if(simbolo.getCategoria().equals("Parâmetro")){
                 int offset = 12 + (this.numeroParametros - i)*4;
                 simbolo.setOffset(offset);
                 if(i == 1){
-                    this.offsetVariavel = offset+4;
+                    this.offsetVariavel = offset + 4;
                 }
                 i++;
             }
