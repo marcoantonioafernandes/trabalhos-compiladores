@@ -969,6 +969,16 @@ public class AnalisadorSintatico {
                 return;
             }
             // AÇÃO {A26}
+            this.secaoCorpoAssembly += "cmp dword [ESP + 4], 1 \n"
+                    + "je rotVerdade \n"
+                    + "cmp dword [ESP], 1\n"
+                    + "je rotVerdade \n"
+                    + "mov dword [ESP + 4], 0 \n"
+                    + "jmp rotSaida \n" 
+                    + "rotVerdade: \n"
+                    + "mov dword [ESP + 4], 1 \n"
+                    + "rotSaida: \n"
+                    + "add esp, 4 \n";
 
             this.expressaoLogicaLinha();
         } else {
