@@ -31,14 +31,14 @@ public class Simbolo implements Comparable {
         this.categoria = categoria;
     }
     
-    public Simbolo(String nome, String categoria, String tipo, String endereco) {
-        this.lexema = nome;
+    public Simbolo(String lexema, String categoria, String tipo, String endereco) {
+        this.lexema = lexema;
         this.categoria = categoria;
         this.tipo = tipo;
         this.endereco = endereco;
     }
 
-    public String getNome() {
+    public String getLexema() {
         return lexema;
     }
 
