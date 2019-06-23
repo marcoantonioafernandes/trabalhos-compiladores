@@ -45,6 +45,11 @@ public class AnalisadorSintatico {
     int contRotuloFalso;
     int contRotuloFim;
     int contRotuloElse;
+    int contRotuloFor;
+    int contRotuloVerdade;
+    int contRotuloSaida;
+    int contRotuloAtribuiFalso;
+    int contRotuloRepeat;
 
     public AnalisadorSintatico(List<Token> tokens) {
         this.tokens = tokens;
@@ -54,11 +59,15 @@ public class AnalisadorSintatico {
         this.secaoCorpoAssembly = "";
         this.secaoDataAssembly = "section .data\n";
         this.contadorStrings = 0;
-        int contadorStrings = 0;
-        int contadorRotulos = 0;
-        int contRotuloFalso = 0;
-        int contRotuloFim = 0;
-        int contRotuloElse = 0;
+        this.contadorStrings = 0;
+        this.contRotuloFalso = 0;
+        this.contRotuloFim = 0;
+        this.contRotuloElse = 0;
+        this.contRotuloFor = 0;
+        this.contRotuloVerdade = 0;
+        this.contRotuloSaida = 0;
+        this.contRotuloAtribuiFalso = 0;
+        this.contRotuloRepeat = 0;
     }
 
     public String analisar() {
@@ -721,7 +730,7 @@ public class AnalisadorSintatico {
                     } else {
                         this.secaoCorpoAssembly += "mov dword [EBP + " + simbolo.getOffset() + "], eax \n";
                     }
-                    this.secaoCorpoAssembly += "rotuloFor: \n";
+                    this.secaoCorpoAssembly += "rotuloFor" + this.contRotuloFor + ": \n";
                     //FIM AÇÃO {A11}
                     this.id++;
                     token = this.getProximoToken();
@@ -739,13 +748,14 @@ public class AnalisadorSintatico {
                                     + "push dword [_@DSP + " + (simbolo.getNivel() * 4) + "] \n"
                                     + "mov ebp, esp \n"
                                     + "cmp dword [EBP + " + simbolo.getOffset() + "], eax  \n"
-                                    + "jg rotuloFim \n"
                                     + "mov esp, ebp\n"
                                     + "pop dword [_@DSP + " + (simbolo.getNivel() * 4) + "]\n"
-                                    + "pop ebp\n";
+                                    + "pop ebp\n"
+                                    + "jg rotuloFim" + this.contRotuloFim + " \n";
+                                    
                         } else {
                             this.secaoCorpoAssembly +="cmp dword [EBP + " + simbolo.getOffset() + "], eax \n"
-                                    + "jg rotuloFim \n";
+                                    + "jg rotuloFim" + this.contRotuloFim + " \n";
                         }
 
                         this.id++;
@@ -765,8 +775,8 @@ public class AnalisadorSintatico {
                             } else {
                                 this.secaoCorpoAssembly += "add dword [EBP + " + simbolo.getOffset() + "], 1 \n";
                             }
-                            this.secaoCorpoAssembly  += "jmp rotuloFor \n";
-                            this.secaoCorpoAssembly  += "rotuloFim: \n";
+                            this.secaoCorpoAssembly  += "jmp rotuloFor" + this.contRotuloFor++  + " \n";
+                            this.secaoCorpoAssembly  += "rotuloFim" + this.contRotuloFim++ + ": \n";
                         } else {
                             this.msgErro = String.format("Erro: \n(%03d) - %s",
                                     token.getLinha(), "Falta um do");
@@ -789,6 +799,8 @@ public class AnalisadorSintatico {
             }
         } else if (token.getLexema().equals("repeat")) {
             //AÇÃO {A14}
+            this.secaoCorpoAssembly += "rotuloRepeat" + this.contRotuloRepeat + ": \n";
+            
             this.sentencas();
             if (this.erro) {
                 return;
@@ -798,6 +810,9 @@ public class AnalisadorSintatico {
             if (token.getLexema().equals("until")) {
                 this.expressaoLogica();
                 //AÇÃO {A15}
+                this.secaoCorpoAssembly += "pop eax \n"
+                    + "cmp eax, 1 \n"
+                    + "jne rotuloRepeat" + this.contRotuloRepeat++ + " \n";
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
                         token.getLinha(), "Falta um until");
@@ -1050,14 +1065,14 @@ public class AnalisadorSintatico {
             }
             // AÇÃO {A26}
             this.secaoCorpoAssembly += "cmp dword [ESP + 4], 1 \n"
-                    + "je rotVerdade \n"
+                    + "je rotVerdade" + this.contRotuloVerdade + " \n"
                     + "cmp dword [ESP], 1\n"
-                    + "je rotVerdade \n"
+                    + "je rotVerdade" + this.contRotuloVerdade + " \n"
                     + "mov dword [ESP + 4], 0 \n"
-                    + "jmp rotSaida \n"
-                    + "rotVerdade: \n"
+                    + "jmp rotSaida" + this.contRotuloSaida + " \n"
+                    + "rotVerdade" + this.contRotuloVerdade++ + ": \n"
                     + "mov dword [ESP + 4], 1 \n"
-                    + "rotSaida: \n"
+                    + "rotSaida" + this.contRotuloSaida++ + ": \n"
                     + "add esp, 4 \n";
 
             this.expressaoLogicaLinha();
@@ -1143,15 +1158,15 @@ public class AnalisadorSintatico {
             }
             // AÇÃO {A27}
             this.secaoCorpoAssembly += "cmp dword [ESP + 4], 1 \n"
-                    + "jne rotAtribuiFalso \n"
+                    + "jne rotAtribuiFalso" + this.contRotuloAtribuiFalso + " \n"
                     + "cmp dword [ESP], 1 \n"
-                    + "je rotVerdade \n"
-                    + "rotAtribuiFalso: \n"
+                    + "je rotVerdade" + this.contRotuloVerdade + " \n"
+                    + "rotAtribuiFalso" + this.contRotuloAtribuiFalso++ + ": \n"
                     + "mov dword [ESP + 4], 0 \n"
-                    + "jmp rotSaida \n"
-                    + "rotVerdade: \n"
+                    + "jmp rotSaida" + this.contRotuloSaida + " \n"
+                    + "rotVerdade" + this.contRotuloVerdade++ + ": \n"
                     + "mov dword [ESP + 4], 1 \n"
-                    + "rotSaida: \n"
+                    + "rotSaida" + this.contRotuloSaida++ + ": \n"
                     + "add esp, 4\n";
             //FIM AÇÃO {A27}
             this.termoLogicoLinha();
@@ -1179,10 +1194,20 @@ public class AnalisadorSintatico {
         } else if (token.getLexema().equals("not")) {
             this.fatorLogico();
             // AÇÃO {A28}
+            this.secaoCorpoAssembly += "cmp dword [ESP], 1 \n"
+                    + "jne Falso" + this.contRotuloFalso + " \n"
+                    + "mov dword [ESP], 0 \n"
+                    + "jmp Fim" + this.contRotuloFim + " \n"
+                    + "Falso" + this.contRotuloFalso++ + ": \n"
+                    + "mov dword [ESP], 1 \n"
+                    + "Fim" + this.contRotuloFim++ + ": \n";
+            //FIM AÇÃO {A28}
         } else if (token.getLexema().equals("true")) {
             // AÇÃO {A29}
+            this.secaoCorpoAssembly += "push 1 \n";
         } else if (token.getLexema().equals("false")) {
             // AÇÃO {A30}
+            this.secaoCorpoAssembly += "push 0 \n";
         } else {
             this.id--;
             this.relacional();
