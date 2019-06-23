@@ -69,6 +69,14 @@ public class AnalisadorSintatico {
         this.contRotuloAtribuiFalso = 0;
         this.contRotuloRepeat = 0;
     }
+    
+    public String getAssembly() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.secaoCabecalhoAssembly);
+        sb.append(this.secaoCorpoAssembly);
+        sb.append(this.secaoDataAssembly);
+        return sb.toString();
+    }
 
     public String analisar() {
         this.msgErro = "";
