@@ -245,11 +245,30 @@ public class AnalisadorSintatico {
             if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
                 this.addSimbolo(token.getLexema(), "Procedure", "", "");
                 //AÇÃO {A04}
+                TabelaSimbolos tabela = this.listaTabelasSimbolos.get(nivel);
+                Simbolo simbolo = tabela.buscaProcedimento(tabela, token.getLexema());
+                if (simbolo != null) {
+                    this.msgErro = String.format("Erro: \n(%03d) - %s",
+                            token.getLinha(), "Procedimento já declarada anteriormente");
+                    this.erro = true;
+                    return;
+                }
+                this.nivel++;
+                TabelaSimbolos novaTabela = new TabelaSimbolos();
+                this.listaTabelasSimbolos.add(novaTabela);
+                // é inserido na tabela nova e na antiga
+                tabela.addSimbolo(token.getLexema(), "Procedimento", this.nivel, 0, 0, "_" + token.getLexema(), novaTabela);
+                novaTabela.setTabelaSimbolosPai(tabela);
+                novaTabela.addSimbolo(token.getLexema(), "Procedimento", this.nivel, 0, 0, "_" + token.getLexema(), novaTabela);
+                
                 this.parametros();
                 if (this.erro) {
                     return;
                 }
                 //AÇÃO {A48}
+                tabela = this.listaTabelasSimbolos.get(nivel);
+                tabela.atualizarNumeroParametros();
+                tabela.calculaOffsetParametros();
 
                 this.id++;
                 token = getProximoToken();
@@ -890,19 +909,24 @@ public class AnalisadorSintatico {
             //*DECIDIR SE É UMA VARIAVEL OU CHAMADA DE FUNÇÃO
             //AÇÃO {A49}  AÇÃO {A58} 
             TabelaSimbolos tabela = this.listaTabelasSimbolos.get(nivel);
-            Simbolo simbolo = tabela.buscaVariavelOuParametro(tabela, token.getLexema());
-            if (simbolo == null) {
-                simbolo = tabela.getElementoTabelaSimbolosAtual(token.getLexema(), "Função");
+            Simbolo simbolo = tabela.buscaProcedimento(tabela, token.getLexema());
+            
+            if(simbolo == null){
+                tabela = this.listaTabelasSimbolos.get(nivel);
+                simbolo = tabela.buscaVariavelOuParametro(tabela, token.getLexema());
                 if (simbolo == null) {
-                    this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "Variável ou função não declarada");
-                    this.erro = true;
-                    return;
-                } else if (simbolo.getNivel() != this.nivel) {
-                    this.msgErro = String.format("Erro: \n(%03d) - %s",
-                            token.getLinha(), "A função não está no nível corrente");
-                    this.erro = true;
-                    return;
+                    simbolo = tabela.getElementoTabelaSimbolosAtual(token.getLexema(), "Função");
+                    if (simbolo == null) {
+                        this.msgErro = String.format("Erro: \n(%03d) - %s",
+                                token.getLinha(), "Variável ou função não declarada");
+                        this.erro = true;
+                        return;
+                    } else if (simbolo.getNivel() != this.nivel) {
+                        this.msgErro = String.format("Erro: \n(%03d) - %s",
+                                token.getLinha(), "A função não está no nível corrente");
+                        this.erro = true;
+                        return;
+                    }
                 }
             }
             //FIM DA AÇÃO {A49} e {A58}
@@ -919,6 +943,8 @@ public class AnalisadorSintatico {
             } else {
                 //chamada_procedimento
                 //AÇÃO {A50}
+                this.id--;
+                token = this.getProximoToken();
                 tabela = this.listaTabelasSimbolos.get(nivel);
                 simbolo = tabela.buscaProcedimento(tabela, token.getLexema());
                 if (simbolo == null) {
@@ -1450,7 +1476,7 @@ public class AnalisadorSintatico {
                         + "add esp, " + simbolo.getNumeroParametros() * 4 + " \n";
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
-                        token.getLinha(), "Número de arumentos inválido");
+                        token.getLinha(), "Número de argumentos inválido");
                 this.erro = true;
                 return;
             }

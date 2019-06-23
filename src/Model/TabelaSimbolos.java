@@ -175,7 +175,7 @@ public class TabelaSimbolos {
            }
        }
        if(!existe){
-            return this.buscaFuncao(tabela.tabelaSimbolosPai, lexema);
+            return this.buscaProcedimento(tabela.tabelaSimbolosPai, lexema);
        }
         Iterator<Simbolo> it = tabela.simbolos.iterator();
         while(it.hasNext()){

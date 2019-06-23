@@ -33,6 +33,8 @@ public class Main extends javax.swing.JFrame {
     RSyntaxTextArea rstaObj = new RSyntaxTextArea(60,60);
     JFileChooser chooser = new JFileChooser();
     
+    boolean compilado = false;
+    
     public Main() {
         initComponents();
         
@@ -73,6 +75,7 @@ public class Main extends javax.swing.JFrame {
         areaMessagens = new javax.swing.JTextArea();
         jPanel3 = new javax.swing.JPanel();
         btnAvaliar = new javax.swing.JButton();
+        btnExec = new javax.swing.JButton();
         btnSair = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         menuArquivo = new javax.swing.JMenu();
@@ -88,11 +91,10 @@ public class Main extends javax.swing.JFrame {
         executar = new javax.swing.JMenuItem();
         menuJanela = new javax.swing.JMenu();
         menuAjuda = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Compiladores");
-
-        jPanel4.setLayout(new java.awt.GridLayout(2, 0));
 
         panelFonte.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
@@ -104,7 +106,7 @@ public class Main extends javax.swing.JFrame {
         );
         panelFonteLayout.setVerticalGroup(
             panelFonteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 201, Short.MAX_VALUE)
+            .addGap(0, 329, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Fonte", panelFonte);
@@ -124,7 +126,7 @@ public class Main extends javax.swing.JFrame {
         );
         panelItensLayout.setVerticalGroup(
             panelItensLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 329, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Itens Léxicos", panelItens);
@@ -155,7 +157,7 @@ public class Main extends javax.swing.JFrame {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 334, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Tabela de Símbolos", jPanel1);
@@ -168,12 +170,10 @@ public class Main extends javax.swing.JFrame {
         );
         panelObjetoLayout.setVerticalGroup(
             panelObjetoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 224, Short.MAX_VALUE)
+            .addGap(0, 334, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab("Código Objeto", panelObjeto);
-
-        jPanel4.add(jTabbedPane1);
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Mensagens"));
 
@@ -189,21 +189,43 @@ public class Main extends javax.swing.JFrame {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE)
         );
 
-        jPanel4.add(jPanel2);
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 362, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
 
         jPanel3.setLayout(new java.awt.GridLayout(1, 0));
 
         btnAvaliar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/View/Icons/check.png"))); // NOI18N
-        btnAvaliar.setText("Avaliar");
+        btnAvaliar.setText("Compilar");
         btnAvaliar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAvaliarActionPerformed(evt);
             }
         });
         jPanel3.add(btnAvaliar);
+
+        btnExec.setText("Executar");
+        btnExec.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExecActionPerformed(evt);
+            }
+        });
+        jPanel3.add(btnExec);
 
         btnSair.setIcon(new javax.swing.ImageIcon(getClass().getResource("/View/Icons/close.png"))); // NOI18N
         btnSair.setText("Sair");
@@ -253,6 +275,7 @@ public class Main extends javax.swing.JFrame {
 
         imprimir.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
         imprimir.setText("Imprimir");
+        imprimir.setEnabled(false);
         menuArquivo.add(imprimir);
 
         sair.setText("Sair");
@@ -266,24 +289,46 @@ public class Main extends javax.swing.JFrame {
         jMenuBar1.add(menuArquivo);
 
         menuEditar.setText("Editar");
+        menuEditar.setEnabled(false);
         jMenuBar1.add(menuEditar);
 
         menuExecutar.setText("Executar");
 
-        compilar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F9, 0));
+        compilar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F5, 0));
         compilar.setText("Compilar");
+        compilar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                compilarActionPerformed(evt);
+            }
+        });
         menuExecutar.add(compilar);
 
-        executar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F10, 0));
+        executar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F6, 0));
         executar.setText("Executar");
+        executar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                executarActionPerformed(evt);
+            }
+        });
         menuExecutar.add(executar);
 
         jMenuBar1.add(menuExecutar);
 
         menuJanela.setText("Janela");
+        menuJanela.setEnabled(false);
         jMenuBar1.add(menuJanela);
 
         menuAjuda.setText("Ajuda");
+
+        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
+        jMenuItem1.setText("Sobre");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        menuAjuda.add(jMenuItem1);
+
         jMenuBar1.add(menuAjuda);
 
         setJMenuBar(jMenuBar1);
@@ -302,7 +347,7 @@ public class Main extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -326,14 +371,19 @@ public class Main extends javax.swing.JFrame {
                 
                 String assembly = as.getAssembly();
                 rstaObj.setText(assembly);
-                
                 try {
                     try (FileWriter fw = new FileWriter("file.asm")) {
                         fw.write(assembly);
                     }
                     Runtime.getRuntime().exec("nasm -f win32 file.asm -o file.o");
+                    Runtime.getRuntime().exec("gcc file.o -o file.exe");
+                    compilado = true;
+                    this.areaMessagens.setText(this.areaMessagens.getText() + "\nCompilado com êxito!");
                 } catch (IOException ex) {
-                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    this.areaMessagens.setText(this.areaMessagens.getText() + "\n"
+                            + "Houve um erro ao compilar!");
+
                 }
             } else {
                 this.areaMessagens.setText(as.getMsgErro());
@@ -405,7 +455,39 @@ public class Main extends javax.swing.JFrame {
 
     private void fecharActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fecharActionPerformed
         // TODO add your handling code here:
+        novoActionPerformed(evt);
     }//GEN-LAST:event_fecharActionPerformed
+
+    private void btnExecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExecActionPerformed
+        // TODO add your handling code here:
+        if(compilado) {
+            try {
+                Runtime.getRuntime().exec("cmd /c start cmd.exe /K file.exe");
+            } catch (IOException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_btnExecActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        // TODO add your handling code here:
+        String s = "Trabalho final da disciplina de Compiladores 2019/1\n\n"
+                + "Alunos:\n"
+                + "Francielle da Silva Nunes\n"
+                + "Marco Antônio de Almeida Fernandes\n"
+                + "Vinicius Soares Silva";
+        JOptionPane.showMessageDialog(null, s);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void compilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compilarActionPerformed
+        // TODO add your handling code here:
+        btnAvaliarActionPerformed(evt);
+    }//GEN-LAST:event_compilarActionPerformed
+
+    private void executarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_executarActionPerformed
+        // TODO add your handling code here:
+        btnExecActionPerformed(evt);
+    }//GEN-LAST:event_executarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -461,12 +543,14 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JTextArea areaItens;
     private javax.swing.JTextArea areaMessagens;
     private javax.swing.JButton btnAvaliar;
+    private javax.swing.JButton btnExec;
     private javax.swing.JButton btnSair;
     private javax.swing.JMenuItem compilar;
     private javax.swing.JMenuItem executar;
     private javax.swing.JMenuItem fechar;
     private javax.swing.JMenuItem imprimir;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
