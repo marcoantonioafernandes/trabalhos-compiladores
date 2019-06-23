@@ -163,6 +163,29 @@ public class TabelaSimbolos {
        return null;
     }
     
+    public Simbolo buscaProcedimento(TabelaSimbolos tabela, String lexema){
+       if(tabela == null) return null;
+       boolean existe = false;
+       Iterator<Simbolo> it1 = tabela.simbolos.descendingIterator();
+       while(it1.hasNext()){
+           Simbolo simboloAux = it1.next();
+           if(simboloAux.equals(new Simbolo(lexema, "Procedimento"))){
+               existe = true;
+               break;
+           }
+       }
+       if(!existe){
+            return this.buscaFuncao(tabela.tabelaSimbolosPai, lexema);
+       }
+        Iterator<Simbolo> it = tabela.simbolos.iterator();
+        while(it.hasNext()){
+            Simbolo simbolo = it.next();
+            if(simbolo.equals(new Simbolo(lexema, "Procedimento")))
+                return simbolo;
+        }
+       return null;
+    }
+    
     public void atualizarNumeroParametros(){
         //Atualizando o número de parâmetros na tabela corrente
         Iterator<Simbolo> it = this.simbolos.descendingIterator();

@@ -50,6 +50,8 @@ public class AnalisadorSintatico {
     int contRotuloSaida;
     int contRotuloAtribuiFalso;
     int contRotuloRepeat;
+    int contRoutuloWhile;
+    int contArgumentos;
 
     public AnalisadorSintatico(List<Token> tokens) {
         this.tokens = tokens;
@@ -68,8 +70,10 @@ public class AnalisadorSintatico {
         this.contRotuloSaida = 0;
         this.contRotuloAtribuiFalso = 0;
         this.contRotuloRepeat = 0;
+        this.contRoutuloWhile = 0;
+        this.contArgumentos = 0;
     }
-    
+
     public String getAssembly() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.secaoCabecalhoAssembly);
@@ -760,9 +764,9 @@ public class AnalisadorSintatico {
                                     + "pop dword [_@DSP + " + (simbolo.getNivel() * 4) + "]\n"
                                     + "pop ebp\n"
                                     + "jg rotuloFim" + this.contRotuloFim + " \n";
-                                    
+
                         } else {
-                            this.secaoCorpoAssembly +="cmp dword [EBP + " + simbolo.getOffset() + "], eax \n"
+                            this.secaoCorpoAssembly += "cmp dword [EBP + " + simbolo.getOffset() + "], eax \n"
                                     + "jg rotuloFim" + this.contRotuloFim + " \n";
                         }
 
@@ -783,8 +787,8 @@ public class AnalisadorSintatico {
                             } else {
                                 this.secaoCorpoAssembly += "add dword [EBP + " + simbolo.getOffset() + "], 1 \n";
                             }
-                            this.secaoCorpoAssembly  += "jmp rotuloFor" + this.contRotuloFor++  + " \n";
-                            this.secaoCorpoAssembly  += "rotuloFim" + this.contRotuloFim++ + ": \n";
+                            this.secaoCorpoAssembly += "jmp rotuloFor" + this.contRotuloFor++ + " \n";
+                            this.secaoCorpoAssembly += "rotuloFim" + this.contRotuloFim++ + ": \n";
                         } else {
                             this.msgErro = String.format("Erro: \n(%03d) - %s",
                                     token.getLinha(), "Falta um do");
@@ -808,7 +812,7 @@ public class AnalisadorSintatico {
         } else if (token.getLexema().equals("repeat")) {
             //AÇÃO {A14}
             this.secaoCorpoAssembly += "rotuloRepeat" + this.contRotuloRepeat + ": \n";
-            
+
             this.sentencas();
             if (this.erro) {
                 return;
@@ -819,8 +823,8 @@ public class AnalisadorSintatico {
                 this.expressaoLogica();
                 //AÇÃO {A15}
                 this.secaoCorpoAssembly += "pop eax \n"
-                    + "cmp eax, 1 \n"
-                    + "jne rotuloRepeat" + this.contRotuloRepeat++ + " \n";
+                        + "cmp eax, 1 \n"
+                        + "jne rotuloRepeat" + this.contRotuloRepeat++ + " \n";
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
                         token.getLinha(), "Falta um until");
@@ -828,17 +832,24 @@ public class AnalisadorSintatico {
             }
         } else if (token.getLexema().equals("while")) {
             //AÇÃO {A16}
+            this.secaoCorpoAssembly += "rotuloWhile" + this.contRoutuloWhile + ": \n";
+
             this.expressaoLogica();
             if (this.erro) {
                 return;
             }
             //AÇÃO {A17}
+            this.secaoCorpoAssembly += "pop eax \n"
+                    + "cmp eax, 1 \n"
+                    + "jne rotuloFim" + this.contRotuloFim + " \n";
 
             this.id++;
             token = this.getProximoToken();
             if (token.getLexema().equals("do")) {
                 this.bloco();
                 //AÇÃO {A18}
+                this.secaoCorpoAssembly += "jmp rotuloWhile" + this.contRoutuloWhile++ + " \n"
+                        + "rotuloFim" + this.contRotuloFim++ + ":\n";
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
                         token.getLinha(), "Falta um do");
@@ -908,8 +919,30 @@ public class AnalisadorSintatico {
             } else {
                 //chamada_procedimento
                 //AÇÃO {A50}
+                tabela = this.listaTabelasSimbolos.get(nivel);
+                simbolo = tabela.buscaProcedimento(tabela, token.getLexema());
+                if (simbolo == null) {
+                    this.msgErro = String.format("Erro: \n(%03d) - %s",
+                            token.getLinha(), "Procedimento não declarado");
+                    this.erro = true;
+                    return;
+                }
+                //FIM AÇÃO {A50}
+
                 this.argumentos();
                 //AÇÃO {A23}
+                tabela = this.listaTabelasSimbolos.get(nivel);
+                simbolo = tabela.getElementoTabelaSimbolosAtual(token.getLexema(), "Procedimento");
+                if (simbolo.getNumeroParametros() == this.contArgumentos) {
+                    this.secaoCorpoAssembly += "call " + simbolo.getRotulo() + "\n"
+                            + "add esp, " + simbolo.getNumeroParametros() * 4 + " \n";
+                } else {
+                    this.msgErro = String.format("Erro: \n(%03d) - %s",
+                            token.getLinha(), "Número de argumentos inválido");
+                    this.erro = true;
+                    return;
+                }
+                this.contArgumentos = 0;
             }
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
@@ -1138,6 +1171,7 @@ public class AnalisadorSintatico {
         if (this.erro) {
             return;
         }
+        this.contArgumentos++;
 
         this.id++;
         Token token = this.getProximoToken();
@@ -1411,8 +1445,16 @@ public class AnalisadorSintatico {
             //Verificar numero de argumentos
             TabelaSimbolos tabela = this.listaTabelasSimbolos.get(nivel);
             Simbolo simbolo = tabela.getElementoTabelaSimbolosAtual(token.getLexema(), "Função");
-            this.secaoCorpoAssembly += "call " + simbolo.getRotulo() + "\n"
-                    + "add esp, " + simbolo.getNumeroParametros() * 4 + " \n";
+            if (simbolo.getNumeroParametros() == this.contArgumentos) {
+                this.secaoCorpoAssembly += "call " + simbolo.getRotulo() + "\n"
+                        + "add esp, " + simbolo.getNumeroParametros() * 4 + " \n";
+            } else {
+                this.msgErro = String.format("Erro: \n(%03d) - %s",
+                        token.getLinha(), "Número de arumentos inválido");
+                this.erro = true;
+                return;
+            }
+            this.contArgumentos = 0;
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
                     token.getLinha(), "Id inválido");
