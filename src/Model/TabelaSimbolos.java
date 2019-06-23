@@ -118,12 +118,18 @@ public class TabelaSimbolos {
     //Função que busca a variável nas tabelas de símbolo atual e corrente
     public Simbolo buscaVariavelOuParametro(TabelaSimbolos tabela, String lexema){
        if(tabela == null) return null;
-       
-       boolean existe = tabela.simbolos.contains(new Simbolo(lexema, "Variável"));
+       //boolean existe = tabela.simbolos.contains(new Simbolo(lexema, "Variável"));
+       boolean existe = false;
+       Iterator<Simbolo> it1 = tabela.simbolos.descendingIterator();
+       while(it1.hasNext()){
+           Simbolo simboloAux = it1.next();
+           if(simboloAux.equals(new Simbolo(lexema, "Variável")) || simboloAux.equals(new Simbolo(lexema, "Parâmetro"))){
+               existe = true;
+               break;
+           }
+       }
        if(!existe){
-           existe = tabela.simbolos.contains(new Simbolo(lexema, "Parâmetro"));
-           if(!existe)
-               return this.buscaVariavelOuParametro(tabela.tabelaSimbolosPai, lexema);
+            return this.buscaVariavelOuParametro(tabela.tabelaSimbolosPai, lexema);
        }
         Iterator<Simbolo> it = tabela.simbolos.iterator();
         while(it.hasNext()){
@@ -136,17 +142,22 @@ public class TabelaSimbolos {
     
     public Simbolo buscaFuncao(TabelaSimbolos tabela, String lexema){
        if(tabela == null) return null;
-       
-       boolean existe = tabela.simbolos.contains(new Simbolo(lexema, "Função"));
+       boolean existe = false;
+       Iterator<Simbolo> it1 = tabela.simbolos.descendingIterator();
+       while(it1.hasNext()){
+           Simbolo simboloAux = it1.next();
+           if(simboloAux.equals(new Simbolo(lexema, "Função"))){
+               existe = true;
+               break;
+           }
+       }
        if(!existe){
-           existe = tabela.simbolos.contains(new Simbolo(lexema, "Função"));
-           if(!existe)
-               return this.buscaFuncao(tabela.tabelaSimbolosPai, lexema);
+            return this.buscaFuncao(tabela.tabelaSimbolosPai, lexema);
        }
         Iterator<Simbolo> it = tabela.simbolos.iterator();
         while(it.hasNext()){
             Simbolo simbolo = it.next();
-            if(simbolo.equals(new Simbolo(lexema, "Funcao")))
+            if(simbolo.equals(new Simbolo(lexema, "Função")))
                 return simbolo;
         }
        return null;

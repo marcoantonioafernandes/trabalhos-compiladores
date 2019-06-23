@@ -42,6 +42,9 @@ public class AnalisadorSintatico {
     String secaoCorpoAssembly;
     String secaoDataAssembly;
     int contadorStrings;
+    int contRotuloFalso;
+    int contRotuloFim;
+    int contRotuloElse;
 
     public AnalisadorSintatico(List<Token> tokens) {
         this.tokens = tokens;
@@ -51,6 +54,19 @@ public class AnalisadorSintatico {
         this.secaoCorpoAssembly = "";
         this.secaoDataAssembly = "section .data\n";
         this.contadorStrings = 0;
+        int contadorStrings = 0;
+        int contadorRotulos = 0;
+        int contRotuloFalso = 0;
+        int contRotuloFim = 0;
+        int contRotuloElse = 0;
+    }
+    
+    public String getAssembly() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.secaoCabecalhoAssembly);
+        sb.append(this.secaoCorpoAssembly);
+        sb.append(this.secaoDataAssembly);
+        return sb.toString();
     }
 
     public String analisar() {
@@ -272,7 +288,6 @@ public class AnalisadorSintatico {
                 tabela.addSimbolo(token.getLexema(), "Função", this.nivel, 0, 0, "_" + token.getLexema(), novaTabela);
                 novaTabela.setTabelaSimbolosPai(tabela);
                 novaTabela.addSimbolo(token.getLexema(), "Função", this.nivel, 0, 0, "_" + token.getLexema(), novaTabela);
-                
 
                 this.parametros();
                 if (this.erro) {
@@ -684,6 +699,14 @@ public class AnalisadorSintatico {
             token = this.getProximoToken();
             if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
                 //AÇÃO {A57}
+                TabelaSimbolos tabela = this.listaTabelasSimbolos.get(nivel);
+                Simbolo simbolo = tabela.buscaVariavelOuParametro(tabela, token.getLexema());
+                if (simbolo == null) {
+                    this.msgErro = String.format("Erro: \n(%03d) - %s",
+                            token.getLinha(), "Variável não declarada");
+                    this.erro = true;
+                }
+                //FIM AÇÃO {A57}
                 this.id++;
                 token = this.getProximoToken();
                 if (token.getLexema().equals(":=")) {
@@ -692,7 +715,22 @@ public class AnalisadorSintatico {
                         return;
                     }
                     //AÇÃO {A11}
-
+                    //Desempilhando o resultado de avaliação que está no topo da pilha
+                    this.secaoCorpoAssembly += "pop eax \n";
+                    if (simbolo.getNivel() != this.nivel) {
+                        //Seguindo para o nível da variável
+                        this.secaoCorpoAssembly += "push ebp \n"
+                                + "push dword [_@DSP + " + (simbolo.getNivel() * 4) + "] \n"
+                                + "mov ebp, esp \n"
+                                + "mov dword [EBP + " + simbolo.getOffset() + "], eax \n"
+                                + "mov esp, ebp\n"
+                                + "pop dword [_@DSP + " + (simbolo.getNivel() * 4) + "]\n"
+                                + "pop ebp\n";
+                    } else {
+                        this.secaoCorpoAssembly += "mov dword [EBP + " + simbolo.getOffset() + "], eax \n";
+                    }
+                    this.secaoCorpoAssembly += "rotuloFor: \n";
+                    //FIM AÇÃO {A11}
                     this.id++;
                     token = this.getProximoToken();
                     if (token.getLexema().equals("to")) {
@@ -701,12 +739,42 @@ public class AnalisadorSintatico {
                             return;
                         }
                         //AÇÃO {A12}
+                        //Desempilhando o resultado de expressão
+                        this.secaoCorpoAssembly += "pop eax \n";
+                        if (simbolo.getNivel() != this.nivel) {
+                            //Seguindo para o nível da variável
+                            this.secaoCorpoAssembly += "push ebp \n"
+                                    + "push dword [_@DSP + " + (simbolo.getNivel() * 4) + "] \n"
+                                    + "mov ebp, esp \n"
+                                    + "cmp dword [EBP + " + simbolo.getOffset() + "], eax  \n"
+                                    + "jg rotuloFim \n"
+                                    + "mov esp, ebp\n"
+                                    + "pop dword [_@DSP + " + (simbolo.getNivel() * 4) + "]\n"
+                                    + "pop ebp\n";
+                        } else {
+                            this.secaoCorpoAssembly +="cmp dword [EBP + " + simbolo.getOffset() + "], eax \n"
+                                    + "jg rotuloFim \n";
+                        }
 
                         this.id++;
                         token = this.getProximoToken();
                         if (token.getLexema().equals("do")) {
                             this.bloco();
                             //AÇÃO {A13}
+                            if (simbolo.getNivel() != this.nivel) {
+                                //Seguindo para o nível da variável
+                                this.secaoCorpoAssembly += "push ebp \n"
+                                        + "push dword [_@DSP + " + (simbolo.getNivel() * 4) + "] \n"
+                                        + "mov ebp, esp \n"
+                                        + "add dword [EBP + " + simbolo.getOffset() + "], 1  \n"
+                                        + "mov esp, ebp\n"
+                                        + "pop dword [_@DSP + " + (simbolo.getNivel() * 4) + "]\n"
+                                        + "pop ebp\n";
+                            } else {
+                                this.secaoCorpoAssembly += "add dword [EBP + " + simbolo.getOffset() + "], 1 \n";
+                            }
+                            this.secaoCorpoAssembly  += "jmp rotuloFor \n";
+                            this.secaoCorpoAssembly  += "rotuloFim: \n";
                         } else {
                             this.msgErro = String.format("Erro: \n(%03d) - %s",
                                     token.getLinha(), "Falta um do");
@@ -767,6 +835,11 @@ public class AnalisadorSintatico {
                 return;
             }
             //AÇÃO {A19}
+            //NÃO SEI SE ESTAR CERTO * BUSCAR NO TEMPO DA PILHA E COMPARAR SE É VERDADEIRO OU FALSO
+            this.secaoCorpoAssembly += "pop eax \n"
+                    + "cmp eax, 1 \n"
+                    + "jne rotuloElse" + this.contRotuloElse + " \n";
+            //FIM AÇÃO {A19}
 
             this.id++;
             token = this.getProximoToken();
@@ -776,9 +849,12 @@ public class AnalisadorSintatico {
                     return;
                 }
                 //AÇÃO {A20}
+                this.secaoCorpoAssembly += "jmp rotuloFim" + this.contRotuloFim + " \n";
+                //FIM AÇÃO {A20}
 
                 this.pfalsa();
                 //AÇÃO {A21}
+                this.secaoCorpoAssembly += "rotuloFim" + this.contRotuloFim++ + ": \n";
             } else {
                 this.msgErro = String.format("Erro: \n(%03d) - %s",
                         token.getLinha(), "Falta um then");
@@ -812,7 +888,7 @@ public class AnalisadorSintatico {
                 tabela = listaTabelasSimbolos.get(nivel);
                 //int offset = tabela.getOffsetVariavel();
                 int offset = simbolo.getOffset();
-                this.secaoCorpoAssembly += "pop dword[ebp + ("+ offset +")]";
+                this.secaoCorpoAssembly += "pop dword[ebp + (" + offset + ")] \n";
                 //FIM AÇÃO {A22}
             } else {
                 //chamada_procedimento
@@ -831,7 +907,36 @@ public class AnalisadorSintatico {
         this.id++;
         Token token = this.getProximoToken();
         if (token.getClasse().equals("cId") && !token.getTipo().equals("Palavra Reservada")) {
-            //AÇÃO {A07}
+            //AÇÃO {A08}
+            TabelaSimbolos tabela = this.listaTabelasSimbolos.get(nivel);
+            Simbolo simbolo = tabela.buscaVariavelOuParametro(tabela, token.getLexema());
+            if (simbolo == null) {
+                this.msgErro = String.format("Erro: \n(%03d) - %s",
+                        token.getLinha(), "Variável não declarada");
+                this.erro = true;
+                return;
+            }
+
+//            if(simbolo.getNivel() != this.nivel){
+//                this.secaoCorpoAssembly += "push ebp \n"
+//                        + "push dword [_DSP + " + simbolo.getNivel()*4+ "] \n"
+//                        + "mov [_DSP + " + simbolo.getNivel()*4+ "], ebp \n";
+//            }
+            this.secaoCorpoAssembly += "mov edx, ebp \n"
+                    + "lea eax, [edx + " + simbolo.getOffset() + "] \n"
+                    + "push eax \n"
+                    + "push _@Integer \n"
+                    + "call _scanf \n"
+                    + "add esp, 8 \n";
+
+//            if(simbolo.getNivel() != this.nivel){
+//                this.secaoCorpoAssembly += "mov esp, ebp\n"
+//                        + "pop dword [_DSP + " + simbolo.getNivel()*4+ "] \n"
+//                        + "pop [_DSP + " + simbolo.getNivel() * 4 + "], ebp \n";
+//            }
+            this.secaoDataAssembly += "_@Integer: db '%d',0 \n";
+            //FIM AÇÃO {A08}
+
             this.id++;
             token = this.getProximoToken();
             if (token.getLexema().equals(",")) {
@@ -852,7 +957,7 @@ public class AnalisadorSintatico {
         if (token.getTipo().equals("String")) {
             //AÇÃO {A59}
             this.contadorStrings++;
-            this.secaoDataAssembly += "_@STR" + this.contadorStrings + ": db '" + token.getLexema() + "', 10, 0";
+            this.secaoDataAssembly += "_@STR" + this.contadorStrings + ": db '" + token.getLexema() + "', 10, 0\n";
             this.secaoCorpoAssembly += "push _@STR" + this.contadorStrings + "\n"
                     + "call _printf\n"
                     + "add esp, 4\n";
@@ -877,9 +982,9 @@ public class AnalisadorSintatico {
                 return;
             }
             this.contadorStrings++;
-            this.secaoDataAssembly += "_@STR" + this.contadorStrings + ": db '%d', 0";
+            this.secaoDataAssembly += "_@STR" + this.contadorStrings + ": db '%d', 0\n";
             this.secaoCorpoAssembly += "mov dword[_@DSP +" + simbolo.getNivel() * 4 + " ], ebp\n"
-                    + "push dword[ebp +" + simbolo.getOffset() + " ]\n"
+                    + "push dword[ebp + (" + simbolo.getOffset() + ") ]\n"
                     + "push _@STR" + this.contadorStrings + "\n"
                     + "call _printf\n"
                     + "add esp, 8\n";
@@ -926,6 +1031,8 @@ public class AnalisadorSintatico {
                 return;
             }
             //AÇÃO {A38}
+            this.secaoCorpoAssembly += "pop eax\n"
+                    + "sub dword[ESP], eax\n";
 
             this.expressaoLinha();
         } else {
@@ -950,6 +1057,16 @@ public class AnalisadorSintatico {
                 return;
             }
             // AÇÃO {A26}
+            this.secaoCorpoAssembly += "cmp dword [ESP + 4], 1 \n"
+                    + "je rotVerdade \n"
+                    + "cmp dword [ESP], 1\n"
+                    + "je rotVerdade \n"
+                    + "mov dword [ESP + 4], 0 \n"
+                    + "jmp rotSaida \n"
+                    + "rotVerdade: \n"
+                    + "mov dword [ESP + 4], 1 \n"
+                    + "rotSaida: \n"
+                    + "add esp, 4 \n";
 
             this.expressaoLogicaLinha();
         } else {
@@ -973,6 +1090,7 @@ public class AnalisadorSintatico {
         Token token = this.getProximoToken();
         if (token.getLexema().equals("else")) {
             //AÇÃO {A25}
+            this.secaoCorpoAssembly += "rotuloElse" + this.contRotuloElse++ + ": \n";
             this.bloco();
         } else {
             this.id--;
@@ -1032,6 +1150,18 @@ public class AnalisadorSintatico {
                 return;
             }
             // AÇÃO {A27}
+            this.secaoCorpoAssembly += "cmp dword [ESP + 4], 1 \n"
+                    + "jne rotAtribuiFalso \n"
+                    + "cmp dword [ESP], 1 \n"
+                    + "je rotVerdade \n"
+                    + "rotAtribuiFalso: \n"
+                    + "mov dword [ESP + 4], 0 \n"
+                    + "jmp rotSaida \n"
+                    + "rotVerdade: \n"
+                    + "mov dword [ESP + 4], 1 \n"
+                    + "rotSaida: \n"
+                    + "add esp, 4\n";
+            //FIM AÇÃO {A27}
             this.termoLogicoLinha();
         } else {
             this.id--;
@@ -1075,19 +1205,72 @@ public class AnalisadorSintatico {
 
         this.id++;
         Token token = this.getProximoToken();
-
+        String codigo = "";
         if (token.getLexema().equals("=")) {
             //AÇÃO{A31}
+            codigo += "pop eax\n"
+                    + "cmp dword [ESP], eax \n"
+                    + "jne Falso" + this.contRotuloFalso + " \n"
+                    + "mov dword [ESP], 1\n"
+                    + "jmp Fim" + this.contRotuloFim + " \n"
+                    + "Falso" + this.contRotuloFalso++ + ": \n"
+                    + "mov dword [ESP], 0 \n"
+                    + "Fim" + this.contRotuloFim++ + ": \n";
+
         } else if (token.getLexema().equals(">")) {
             //AÇÃO {A32}
+            codigo += "pop eax\n"
+                    + "cmp dword [ESP], eax \n"
+                    + "jng Falso" + this.contRotuloFalso + " \n"
+                    + "mov dword [ESP], 1\n"
+                    + "jmp Fim" + this.contRotuloFim + " \n"
+                    + "Falso" + this.contRotuloFalso++ + ": \n"
+                    + "mov dword [ESP], 0 \n"
+                    + "Fim" + this.contRotuloFim++ + ": \n";
         } else if (token.getLexema().equals("<")) {
             //AÇÃO {A34}
+            codigo += "pop eax\n"
+                    + "cmp dword [ESP], eax \n"
+                    + "jnl Falso" + this.contRotuloFalso + " \n"
+                    + "mov dword [ESP], 1\n"
+                    + "jmp Fim" + this.contRotuloFim + " \n"
+                    + "Falso" + this.contRotuloFalso++ + ": \n"
+                    + "mov dword [ESP], 0 \n"
+                    + "Fim" + this.contRotuloFim++ + ": \n";
+
         } else if (token.getLexema().equals(">=")) {
             //AÇÃO {A33}
+            codigo += "pop eax\n"
+                    + "cmp dword [ESP], eax \n"
+                    + "jnge Falso" + this.contRotuloFalso + " \n"
+                    + "mov dword [ESP], 1\n"
+                    + "jmp Fim" + this.contRotuloFim + " \n"
+                    + "Falso" + this.contRotuloFalso++ + ": \n"
+                    + "mov dword [ESP], 0 \n"
+                    + "Fim" + this.contRotuloFim++ + ": \n";
+
         } else if (token.getLexema().equals("<=")) {
             //AÇÃO {A35}
+            codigo += "pop eax\n"
+                    + "cmp dword [ESP], eax \n"
+                    + "jnle Falso" + this.contRotuloFalso + " \n"
+                    + "mov dword [ESP], 1\n"
+                    + "jmp Fim" + this.contRotuloFim + " \n"
+                    + "Falso" + this.contRotuloFalso++ + ": \n"
+                    + "mov dword [ESP], 0 \n"
+                    + "Fim" + this.contRotuloFim++ + ": \n";
+
         } else if (token.getLexema().equals("<>")) {
             //AÇÃO {A36}
+            codigo += "pop eax\n"
+                    + "cmp dword [ESP], eax \n"
+                    + "je Falso" + this.contRotuloFalso + " \n"
+                    + "mov dword [ESP], 1\n"
+                    + "jmp Fim" + this.contRotuloFim + " \n"
+                    + "Falso" + this.contRotuloFalso++ + ": \n"
+                    + "mov dword [ESP], 0 \n"
+                    + "Fim" + this.contRotuloFim++ + ": \n";
+
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
                     token.getLinha(), "Falta um operador lógico (=, >, <, >=, <=, <>)");
@@ -1096,6 +1279,7 @@ public class AnalisadorSintatico {
         }
 
         this.expressao();
+        this.secaoCorpoAssembly += codigo;
     }
 
     private void relacao() {
@@ -1127,6 +1311,10 @@ public class AnalisadorSintatico {
                 return;
             }
             //AÇÃO {A39}
+            this.secaoCorpoAssembly += "pop eax \n"
+                    + "imul eax, dword [ESP] \n"
+                    + "mov dword [ESP], eax \n";
+            //FIM AÇÃO {A39}
             this.termoLinha();
         } else if (token.getLexema().equals("/")) {
             this.fator();
@@ -1134,6 +1322,10 @@ public class AnalisadorSintatico {
                 return;
             }
             //AÇÃO {A40}
+            this.secaoCorpoAssembly += "pop ecx \n"
+                    + "pop eax \n"
+                    + "idiv ecx \n"
+                    + "push eax \n";
             this.termoLinha();
         } else {
             this.id--;
@@ -1161,7 +1353,7 @@ public class AnalisadorSintatico {
             this.fatorP();
         } else {
             //AÇÃO  {A41}
-            this.secaoCorpoAssembly += "push " + token.getLexema() + "\n";
+            this.secaoCorpoAssembly += "push " + token.getLexema() + " \n";
         }
     }
 
@@ -1194,8 +1386,8 @@ public class AnalisadorSintatico {
             //Verificar numero de argumentos
             TabelaSimbolos tabela = this.listaTabelasSimbolos.get(nivel);
             Simbolo simbolo = tabela.getElementoTabelaSimbolosAtual(token.getLexema(), "Função");
-            this.secaoCorpoAssembly += "call " + simbolo.getRotulo()
-                    + "add esp, " + simbolo.getNumeroParametros()*4 + " ";
+            this.secaoCorpoAssembly += "call " + simbolo.getRotulo() + "\n"
+                    + "add esp, " + simbolo.getNumeroParametros() * 4 + " \n";
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",
                     token.getLinha(), "Id inválido");
@@ -1210,7 +1402,7 @@ public class AnalisadorSintatico {
             //AÇÃO {A55} 
             TabelaSimbolos tabela = this.listaTabelasSimbolos.get(nivel);
             Simbolo simbolo = tabela.buscaVariavelOuParametro(tabela, token.getLexema());
-            this.secaoCorpoAssembly+= "push dword [EBP + (" + simbolo.getOffset() + ")]";
+            this.secaoCorpoAssembly += "push dword [EBP + (" + simbolo.getOffset() + ")] \n";
             //FIM AÇÃO {A55}
         } else {
             this.msgErro = String.format("Erro: \n(%03d) - %s",

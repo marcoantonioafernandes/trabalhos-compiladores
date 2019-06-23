@@ -5,13 +5,21 @@ import Control.AnalisadorSintatico;
 import Model.Simbolo;
 import Model.Token;
 import java.awt.BorderLayout;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import org.fife.ui.rtextarea.*;
 import org.fife.ui.rsyntaxtextarea.*;
@@ -22,7 +30,9 @@ public class Main extends javax.swing.JFrame {
     AnalisadorSintatico as;
     
     RSyntaxTextArea rsta = new RSyntaxTextArea(60, 60);
-
+    RSyntaxTextArea rstaObj = new RSyntaxTextArea(60,60);
+    JFileChooser chooser = new JFileChooser();
+    
     public Main() {
         initComponents();
         
@@ -31,6 +41,12 @@ public class Main extends javax.swing.JFrame {
         rsta.setTemplatesEnabled(true);
         RTextScrollPane sp = new RTextScrollPane(rsta);
         this.panelFonte.add(sp);
+        
+        this.panelObjeto.setLayout(new BorderLayout());        
+        rstaObj.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_ASSEMBLER_X86);  
+        rstaObj.setTemplatesEnabled(true);
+        RTextScrollPane sp2 = new RTextScrollPane(rstaObj);
+        this.panelObjeto.add(sp2);
     }
 
     /**
@@ -51,6 +67,7 @@ public class Main extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         tabelaSimbolos = new javax.swing.JTable();
+        panelObjeto = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         areaMessagens = new javax.swing.JTextArea();
@@ -58,11 +75,19 @@ public class Main extends javax.swing.JFrame {
         btnAvaliar = new javax.swing.JButton();
         btnSair = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenu2 = new javax.swing.JMenu();
-        jMenu3 = new javax.swing.JMenu();
-        jMenu4 = new javax.swing.JMenu();
-        jMenu5 = new javax.swing.JMenu();
+        menuArquivo = new javax.swing.JMenu();
+        novo = new javax.swing.JMenuItem();
+        abrir = new javax.swing.JMenuItem();
+        fechar = new javax.swing.JMenuItem();
+        salvar = new javax.swing.JMenuItem();
+        imprimir = new javax.swing.JMenuItem();
+        sair = new javax.swing.JMenuItem();
+        menuEditar = new javax.swing.JMenu();
+        menuExecutar = new javax.swing.JMenu();
+        compilar = new javax.swing.JMenuItem();
+        executar = new javax.swing.JMenuItem();
+        menuJanela = new javax.swing.JMenu();
+        menuAjuda = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Compiladores");
@@ -135,6 +160,19 @@ public class Main extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Tabela de Símbolos", jPanel1);
 
+        javax.swing.GroupLayout panelObjetoLayout = new javax.swing.GroupLayout(panelObjeto);
+        panelObjeto.setLayout(panelObjetoLayout);
+        panelObjetoLayout.setHorizontalGroup(
+            panelObjetoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 1073, Short.MAX_VALUE)
+        );
+        panelObjetoLayout.setVerticalGroup(
+            panelObjetoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 224, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("Código Objeto", panelObjeto);
+
         jPanel4.add(jTabbedPane1);
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Mensagens"));
@@ -151,7 +189,7 @@ public class Main extends javax.swing.JFrame {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 228, Short.MAX_VALUE)
+            .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
         );
 
         jPanel4.add(jPanel2);
@@ -176,20 +214,77 @@ public class Main extends javax.swing.JFrame {
         });
         jPanel3.add(btnSair);
 
-        jMenu1.setText("Arquivo");
-        jMenuBar1.add(jMenu1);
+        menuArquivo.setText("Arquivo");
 
-        jMenu2.setText("Editar");
-        jMenuBar1.add(jMenu2);
+        novo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
+        novo.setText("Novo");
+        novo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                novoActionPerformed(evt);
+            }
+        });
+        menuArquivo.add(novo);
 
-        jMenu3.setText("Executar");
-        jMenuBar1.add(jMenu3);
+        abrir.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        abrir.setText("Abrir");
+        abrir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                abrirActionPerformed(evt);
+            }
+        });
+        menuArquivo.add(abrir);
 
-        jMenu4.setText("Janela");
-        jMenuBar1.add(jMenu4);
+        fechar.setText("Fechar");
+        fechar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fecharActionPerformed(evt);
+            }
+        });
+        menuArquivo.add(fechar);
 
-        jMenu5.setText("Ajuda");
-        jMenuBar1.add(jMenu5);
+        salvar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        salvar.setText("Salvar");
+        salvar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                salvarActionPerformed(evt);
+            }
+        });
+        menuArquivo.add(salvar);
+
+        imprimir.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
+        imprimir.setText("Imprimir");
+        menuArquivo.add(imprimir);
+
+        sair.setText("Sair");
+        sair.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sairActionPerformed(evt);
+            }
+        });
+        menuArquivo.add(sair);
+
+        jMenuBar1.add(menuArquivo);
+
+        menuEditar.setText("Editar");
+        jMenuBar1.add(menuEditar);
+
+        menuExecutar.setText("Executar");
+
+        compilar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F9, 0));
+        compilar.setText("Compilar");
+        menuExecutar.add(compilar);
+
+        executar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F10, 0));
+        executar.setText("Executar");
+        menuExecutar.add(executar);
+
+        jMenuBar1.add(menuExecutar);
+
+        menuJanela.setText("Janela");
+        jMenuBar1.add(menuJanela);
+
+        menuAjuda.setText("Ajuda");
+        jMenuBar1.add(menuAjuda);
 
         setJMenuBar(jMenuBar1);
 
@@ -228,6 +323,18 @@ public class Main extends javax.swing.JFrame {
             int i = 0;
             if(as.getMsgErro().equals("")){
                 this.areaMessagens.setText("Analise sintática concluída");
+                
+                String assembly = as.getAssembly();
+                rstaObj.setText(assembly);
+                
+                try {
+                    try (FileWriter fw = new FileWriter("file.asm")) {
+                        fw.write(assembly);
+                    }
+                    Runtime.getRuntime().exec("nasm -f win32 file.asm -o file.o");
+                } catch (IOException ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                }
             } else {
                 this.areaMessagens.setText(as.getMsgErro());
             }
@@ -237,7 +344,7 @@ public class Main extends javax.swing.JFrame {
             
             while(it.hasNext()){                
                 Simbolo simbolo = it.next();                                                 
-                String[] row = {simbolo.getNome(), simbolo.getCategoria(), simbolo.getTipo(), simbolo.getEndereco()};         
+                String[] row = {simbolo.getLexema(), simbolo.getCategoria(), simbolo.getTipo(), simbolo.getEndereco()};         
                 /* System.out.println(i++ + " - Lexema: " + simbolo.getLexema() + " Categoria: " + simbolo.getCategoria()
                 + " Tipo: " + simbolo.getTipo() + " Endereço: " + simbolo.getEndereco()); */
                 tabSimbolos.addRow(row);
@@ -250,6 +357,55 @@ public class Main extends javax.swing.JFrame {
         // TODO add your handling code here:
         System.exit(0);
     }//GEN-LAST:event_btnSairActionPerformed
+
+    private void sairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sairActionPerformed
+        // TODO add your handling code here:
+        System.exit(0);
+    }//GEN-LAST:event_sairActionPerformed
+
+    private void novoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_novoActionPerformed
+        // TODO add your handling code here:
+        rsta.setText("");
+        areaMessagens.setText("");
+    }//GEN-LAST:event_novoActionPerformed
+
+    private void abrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_abrirActionPerformed
+        // TODO add your handling code here:
+        
+        int retorno = chooser.showOpenDialog(null);
+        if(retorno == JFileChooser.APPROVE_OPTION) {
+            File f = chooser.getSelectedFile();
+            try {
+                String codigo = new String(Files.readAllBytes(f.toPath()));
+                rsta.setText(codigo);
+            } catch (IOException ex) {
+                //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(null, "Erro ao abrir arquivo!", "Erro", JOptionPane.WARNING_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Erro ao abrir arquivo!", "Erro", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_abrirActionPerformed
+
+    private void salvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_salvarActionPerformed
+        // TODO add your handling code here:
+        int retorno = chooser.showSaveDialog(null);
+        if (retorno == JFileChooser.APPROVE_OPTION) {
+            try {
+                FileWriter fw = new FileWriter(chooser.getSelectedFile());
+                fw.write(rsta.getText());
+                fw.close();
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, "Erro ao salvar arquivo!", "Erro", JOptionPane.WARNING_MESSAGE);
+                //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+    }//GEN-LAST:event_salvarActionPerformed
+
+    private void fecharActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fecharActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_fecharActionPerformed
 
     /**
      * @param args the command line arguments
@@ -301,15 +457,15 @@ public class Main extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem abrir;
     private javax.swing.JTextArea areaItens;
     private javax.swing.JTextArea areaMessagens;
     private javax.swing.JButton btnAvaliar;
     private javax.swing.JButton btnSair;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenu jMenu3;
-    private javax.swing.JMenu jMenu4;
-    private javax.swing.JMenu jMenu5;
+    private javax.swing.JMenuItem compilar;
+    private javax.swing.JMenuItem executar;
+    private javax.swing.JMenuItem fechar;
+    private javax.swing.JMenuItem imprimir;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -319,8 +475,17 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JMenu menuAjuda;
+    private javax.swing.JMenu menuArquivo;
+    private javax.swing.JMenu menuEditar;
+    private javax.swing.JMenu menuExecutar;
+    private javax.swing.JMenu menuJanela;
+    private javax.swing.JMenuItem novo;
     private javax.swing.JPanel panelFonte;
     private javax.swing.JPanel panelItens;
+    private javax.swing.JPanel panelObjeto;
+    private javax.swing.JMenuItem sair;
+    private javax.swing.JMenuItem salvar;
     private javax.swing.JTable tabelaSimbolos;
     // End of variables declaration//GEN-END:variables
 }
