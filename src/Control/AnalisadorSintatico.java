@@ -278,6 +278,7 @@ public class AnalisadorSintatico {
                         return;
                     }
                     //AÇÃO {A56}
+                    this.nivel--;
 
                     this.id++;
                     token = getProximoToken();
@@ -1471,6 +1472,14 @@ public class AnalisadorSintatico {
             //Verificar numero de argumentos
             TabelaSimbolos tabela = this.listaTabelasSimbolos.get(nivel);
             Simbolo simbolo = tabela.getElementoTabelaSimbolosAtual(token.getLexema(), "Função");
+            
+            if (simbolo == null) {
+                this.msgErro = String.format("Erro: \n(%03d) - %s",
+                        token.getLinha(), "Função não declarada");
+                this.erro = true;
+                return;
+            }
+            
             if (simbolo.getNumeroParametros() == this.contArgumentos) {
                 this.secaoCorpoAssembly += "call " + simbolo.getRotulo() + "\n"
                         + "add esp, " + simbolo.getNumeroParametros() * 4 + " \n";
