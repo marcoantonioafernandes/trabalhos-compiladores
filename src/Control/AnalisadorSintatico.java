@@ -52,6 +52,7 @@ public class AnalisadorSintatico {
     int contRotuloRepeat;
     int contRoutuloWhile;
     int contArgumentos;
+    boolean writeln;
 
     public AnalisadorSintatico(List<Token> tokens) {
         this.tokens = tokens;
@@ -72,6 +73,7 @@ public class AnalisadorSintatico {
         this.contRotuloRepeat = 0;
         this.contRoutuloWhile = 0;
         this.contArgumentos = 0;
+        this.writeln = false;
     }
 
     public String getAssembly() {
@@ -710,6 +712,7 @@ public class AnalisadorSintatico {
             this.id++;
             token = this.getProximoToken();
             if (token.getLexema().equals("(")) {
+                this.writeln = true;
                 this.expWrite();
                 if (this.erro) {
                     return;
@@ -991,12 +994,13 @@ public class AnalisadorSintatico {
                 this.erro = true;
                 return;
             }
+            
 
-//            if(simbolo.getNivel() != this.nivel){
-//                this.secaoCorpoAssembly += "push ebp \n"
-//                        + "push dword [_DSP + " + simbolo.getNivel()*4+ "] \n"
-//                        + "mov [_DSP + " + simbolo.getNivel()*4+ "], ebp \n";
-//            }
+            if(simbolo.getNivel() != this.nivel){
+                this.secaoCorpoAssembly += "push ebp \n"
+                                        + "push dword [_@DSP + " + (simbolo.getNivel() * 4) + "] \n"
+                                        + "mov ebp, esp \n";
+            }
             this.secaoCorpoAssembly += "mov edx, ebp \n"
                     + "lea eax, [edx + " + simbolo.getOffset() + "] \n"
                     + "push eax \n"
@@ -1004,11 +1008,11 @@ public class AnalisadorSintatico {
                     + "call _scanf \n"
                     + "add esp, 8 \n";
 
-//            if(simbolo.getNivel() != this.nivel){
-//                this.secaoCorpoAssembly += "mov esp, ebp\n"
-//                        + "pop dword [_DSP + " + simbolo.getNivel()*4+ "] \n"
-//                        + "pop [_DSP + " + simbolo.getNivel() * 4 + "], ebp \n";
-//            }
+            if(simbolo.getNivel() != this.nivel){
+                this.secaoCorpoAssembly += "mov esp, ebp\n"
+                                        + "pop dword [_@DSP + " + (simbolo.getNivel() * 4) + "]\n"
+                                        + "pop ebp\n";
+            }
             this.secaoDataAssembly += "_@Integer: db '%d',0 \n";
             //FIM AÇÃO {A08}
 
@@ -1032,7 +1036,14 @@ public class AnalisadorSintatico {
         if (token.getTipo().equals("String")) {
             //AÇÃO {A59}
             this.contadorStrings++;
-            this.secaoDataAssembly += "_@STR" + this.contadorStrings + ": db '" + token.getLexema() + "', 10, 0\n";
+            this.secaoDataAssembly += "_@STR" + this.contadorStrings + ": db '" + token.getLexema() + "',";
+            if(this.writeln){
+                this.secaoDataAssembly += "10 , 0 \n";
+                this.writeln = false;
+            }
+            else{
+                this.secaoDataAssembly += "0 \n";
+            }
             this.secaoCorpoAssembly += "push _@STR" + this.contadorStrings + "\n"
                     + "call _printf\n"
                     + "add esp, 4\n";
@@ -1057,7 +1068,14 @@ public class AnalisadorSintatico {
                 return;
             }
             this.contadorStrings++;
-            this.secaoDataAssembly += "_@STR" + this.contadorStrings + ": db '%d', 0\n";
+            this.secaoDataAssembly += "_@STR" + this.contadorStrings + ": db '%d',";
+            if(this.writeln){
+                this.secaoDataAssembly += "10, 0 \n";
+                this.writeln = false;
+            }
+            else{
+                this.secaoDataAssembly += "0 \n";
+            }
             this.secaoCorpoAssembly += "mov dword[_@DSP +" + simbolo.getNivel() * 4 + " ], ebp\n"
                     + "push dword[ebp + (" + simbolo.getOffset() + ") ]\n"
                     + "push _@STR" + this.contadorStrings + "\n"
